@@ -2,40 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
-</head>
-<body>
-  <div class="login-box-body">
-    {% if already_logged %}
-      <p class="login-box-msg">
-        Вы уже вошли как <b>{{ request.user.name }}</b>. <br>
-        <a href="{% url 'admin_index' %}">Перейти в панель управления</a> <br>
-        <a href="{% url 'logout' %}">Войти под другим именем</a> <br>
-      </p>
-    {% elif error %}
-      <p class="login-box-msg text-danger"><b>{{ error }}</b></p>
-    {% else %}
-      <p class="login-box-msg">Для доступа к панели управления требуется выполнить вход</p>
-    {%  endif %}
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>FreshApp | Вход</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="stylesheet" href="/static/app_admin/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="/static/app_admin/dist/css/AdminLTE.min.css">
+  <link rel="stylesheet" href="/static/app_admin/plugins/iCheck/square/blue.css">
 
-    <form action="{% url 'login' %}" method="post">
-      {% csrf_token %}
-      <div class="form-group has-feedback">
-        <input type="text" name="username" class="form-control" placeholder="Логин" required>
-        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-      </div>
-      <div class="form-group has-feedback">
-        <input type="password" name="password" class="form-control" placeholder="Пароль" required>
-        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-      </div>
-      <div class="row">
-        <!-- /.col -->
-        <div class="col-xs-12">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Войти</button>
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body class="hold-transition login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <a href="/"><b>Elec </b>Site</a>
+    </div>
+    <div class="login-box-body">
+      {% if already_logged %}
+        <p class="login-box-msg">
+          Вы уже вошли как <b>{{ request.user.username }}</b>. <br>
+          <a href="{% url 'admin_index' %}">Перейти в панель управления</a> <br>
+          <a href="{% url 'logout' %}">Войти под другим именем</a> <br>
+        </p>
+      {% elif error %}
+        <p class="login-box-msg text-danger"><b>{{ error }}</b></p>
+      {% else %}
+        <p class="login-box-msg">Для доступа к панели управления требуется выполнить вход</p>
+      {%  endif %}
+
+      <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group has-feedback">
+          <input type="text" name="username" class="form-control" placeholder="Логин" required>
+          <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
         </div>
-        <!-- /.col -->
-      </div>
-    </form>
+        <div class="form-group has-feedback">
+          <input type="password" name="password" class="form-control" placeholder="Пароль" required>
+          <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        </div>
+        <div class="row">
+          <!-- /.col -->
+          <div class="col-xs-12">
+            <button type="submit" class="btn btn-primary btn-block btn-flat">Войти</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
+    </div>
   </div>
+  <script src="/static/app_admin/plugins/jQuery/jQuery-2.2.0.min.js"></script>
+  <script src="/static/app_admin/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/static/app_admin/plugins/iCheck/icheck.min.js"></script>
 </body>
 </html>
