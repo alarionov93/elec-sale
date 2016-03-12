@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from sys import path
+
 import os
+from django.conf.global_settings import APPEND_SLASH
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -38,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'app_admin',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -99,5 +103,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
+
+if APPEND_SLASH == False:
+    APPEND_SLASH = True
 
 STATIC_URL = '/static/'

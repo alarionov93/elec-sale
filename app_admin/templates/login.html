@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+  <div class="login-box-body">
+    {% if already_logged %}
+      <p class="login-box-msg">
+        Вы уже вошли как <b>{{ request.user.name }}</b>. <br>
+        <a href="{% url 'admin_index' %}">Перейти в панель управления</a> <br>
+        <a href="{% url 'logout' %}">Войти под другим именем</a> <br>
+      </p>
+    {% elif error %}
+      <p class="login-box-msg text-danger"><b>{{ error }}</b></p>
+    {% else %}
+      <p class="login-box-msg">Для доступа к панели управления требуется выполнить вход</p>
+    {%  endif %}
+
+    <form action="{% url 'login' %}" method="post">
+      {% csrf_token %}
+      <div class="form-group has-feedback">
+        <input type="text" name="username" class="form-control" placeholder="Логин" required>
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+      </div>
+      <div class="form-group has-feedback">
+        <input type="password" name="password" class="form-control" placeholder="Пароль" required>
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+      </div>
+      <div class="row">
+        <!-- /.col -->
+        <div class="col-xs-12">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Войти</button>
+        </div>
+        <!-- /.col -->
+      </div>
+    </form>
+  </div>
+</body>
+</html>
