@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.base import ContextMixin, View
 from django.views.generic import ListView, CreateView, UpdateView, TemplateView
 from core import models
-from app_admin.forms import ProductForm
+from app_admin.forms import ProductForm, ProductImageForm
 
 LOGIN_REDIRECT_URL = '/admin/login/'
 
@@ -159,3 +159,35 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
 
 class ProductRemove():
     pass
+
+
+class ProductImageCreate(CreateView, AdminContext, WithHeader):
+    model = models.ProductImage
+    form_class = ProductImageForm
+
+    page_header = 'Добавить изображение'
+    template_name = 'images/create.html'
+
+    context_object_name = 'image'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProductImageCreate, self).get_context_data()
+        ctx['form'] = self.get_form()
+
+        return ctx
+
+    def get_form(self, form_class=ProductImageForm):
+        form = super(ProductImageCreate, self).get_form()
+
+        return form
+
+    def get_parent_link(self):
+        return reverse('products_list')
+
+    def form_valid(self, form):
+        product_image = form.save(commit=False)
+        product_image.save()
+        return super(ProductImageCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        return '../%s/' % self.object.id
