@@ -19,5 +19,5 @@ from core import urls as site_urls
 
 urlpatterns = [
     url(r'^admin/', include(admin_urls)),
-    # url(r'^', include(site_urls)),
+    url(r'^', include(site_urls)),
 ]

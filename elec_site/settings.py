@@ -18,6 +18,7 @@ from django.conf.global_settings import APPEND_SLASH
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+SITE_NAME = 'Elec Site'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -42,6 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'core',
     'app_admin',
+    'bootstrap3',
 )
 
 MIDDLEWARE_CLASSES = (

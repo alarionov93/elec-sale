@@ -1,0 +1,35 @@
+{% extends '_base.html' %}
+
+{% block content %}
+  <table class="table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Название</th>
+      <th>Цена, <i class="fa fa-rouble"></i></th>
+      <th>Изменить</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in products %}
+      <tr>
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.cost }}</td>
+        <td><a href="{% url 'product_update' product.id %}"><i class="fa fa-pencil"></i></a></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+
+
+{% block box-toolbox-r %}
+  <a href="{% url 'product_add' %}">
+    <button type="button" class="btn btn-success">
+      <i class="fa fa-plus">
+        Добавить
+      </i>
+    </button>
+  </a>
+{% endblock %}

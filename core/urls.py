@@ -3,5 +3,5 @@ from core import views
 
 
 urlpatterns = [
-    # url(r'^$', views.index, name='site_index'),
+    url(r'^$', views.index, name='site_index'),
 ]

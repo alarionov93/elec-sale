@@ -3,7 +3,7 @@ from django.db import models
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=100, default='', unique=False, verbose_name='Наименование')
-    cost = models.PositiveIntegerField(null=False, blank=False)
+    cost = models.PositiveIntegerField(null=False, blank=False, verbose_name='Цена')
 
     def __str__(self):
         return self.name

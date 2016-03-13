@@ -1,11 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Admin</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ site_name }} | {{ page_header }}</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="stylesheet" href="/static/app_admin/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="/static/app_admin/dist/css/AdminLTE.min.css">
+  <link rel="stylesheet" href="/static/app_admin/dist/css/skins/skin-purple.min.css">
+  <link rel="stylesheet" href="/static/app_admin/dist/css/skins/skin-green.min.css">
+  <link rel="stylesheet" href="/static/app_admin/dist/css/skins/skin-black.min.css">
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
 </head>
-<body>
-{% block content %}
+<body class="hold-transition skin-green sidebar-mini">
+<div class="wrapper">
+  <!-- Main Header -->
+  <header class="main-header">
+    <!-- Logo -->
+    <a href="/" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini">ES</span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg">{{ site_name }}</span>
+    </a>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top" role="navigation">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+      <!-- Navbar Right Menu -->
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+        <li>
+          <a href="{% url 'logout' %}">Выход ({{ request.user.username }})</a>
+        </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+      <!-- Sidebar Menu -->
+      <ul class="sidebar-menu">
+        <!-- Optionally, you can add icons to the links -->
+        <li {% if current_page == 'main' %} class="active" {% endif %}>
+          <a href="{% url 'admin_index' %}">
+            <i class="fa fa-dashboard"></i> <span>Главная</span>
+          </a>
+        </li>
+
+        <li {% if current_page == 'products' %} class="active" {% endif %}>
+          <a href="{% url 'products_list' %}">
+            <i class="fa fa-shopping-basket"></i> <span>Продукты</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- /.sidebar-menu -->
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box">
+            <div class="box-header with-border">
+              <h4 class="box-title">
+                {% if parent_title and parent_link %}
+                  <a href="{{ parent_link }}">&nbsp;{{ parent_title }}</a>
+                  &nbsp;&nbsp;
+                  <i class="fa fa-angle-right"></i>
+                  &nbsp;&nbsp;
+                {% endif %}
+                {{ page_header }}
+              </h4>
+            <div class="box-toolbox pull-right">
+              {% block box-toolbox-r %}{% endblock %}
+            </div>
+            </div>
+            <div class="box-body">
+              {% block content %}{% endblock %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <!-- To the right -->
+    <!-- <div class="pull-right hidden-xs">
+      это будет в правой части футера
+    </div> -->
+    <!-- Default to the left -->
+    <strong>&copy; {{ year }} <a href="#">Fresh App</a>.</strong> Хуй фасоль и антресоль.
+  </footer>
+
+  <!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED JS SCRIPTS -->
+<script src="/static/app_admin/plugins/jQuery/jQuery-2.2.0.min.js"></script>
+<script src="/static/app_admin/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/app_admin/dist/js/app.min.js"></script>
+{% block ext-js %}
 {% endblock %}
 </body>
 </html>
