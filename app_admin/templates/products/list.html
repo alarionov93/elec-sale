@@ -7,6 +7,7 @@
       <th>#</th>
       <th>Название</th>
       <th>Цена, <i class="fa fa-rouble"></i></th>
+      <th>Наличие</th>
       <th>Изменить</th>
     </tr>
   </thead>
@@ -16,6 +17,11 @@
         <td>{{ product.id }}</td>
         <td>{{ product.name }}</td>
         <td>{{ product.cost }}</td>
+        {% if product.in_stock == 1 %}
+          <td><i class="fa fa-check text-success"></i></td>
+        {% else%}
+          <td><i class="fa fa-remove text-danger"></i></td>
+        {% endif %}
         <td><a href="{% url 'product_update' product.id %}"><i class="fa fa-pencil"></i></a></td>
       </tr>
     {% endfor %}

@@ -135,7 +135,7 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'cost', ]
+    fields = ['name', 'cost', 'in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
