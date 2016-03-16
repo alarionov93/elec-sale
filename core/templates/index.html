@@ -150,15 +150,25 @@
         </div>
     </section>
     <section id="all-products-link">
-      {% if products_count > max_at_page %}
+      {% if products_all_count > at_page %}
         <div class="container">
           <div class="text-center row">
-            <a href="#" class="btn btn-primary btn-xl">Вся продукция...</a>
+              <!-- ko if: products.expanded() -->
+              <a href="" data-bind="click: getInitProducts, text: 'Свернуть'" class="btn btn-primary btn-xl"></a>
+              <!-- /ko -->
+              <!-- ko if: !products.expanded() -->
+              <a href="" data-bind="click: getAllProducts(), text: 'Вся продукция'" class="btn btn-primary btn-xl"></a>
+              <!-- /ko -->
           </div>
         </div>
       {% endif %}
     </section>
 
+    <div class="container bg-black text-center product-detail-view" id="detail-view">
+      <div class="row">
+        asdfsadfdsaf
+      </div>
+    </div>
     <!--<aside class="bg-dark">
         <div class="container text-center">
             <div class="call-to-action">
@@ -209,6 +219,10 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="../static/js/creative.js"></script>
+    <script src="../static/js/knockout.js"></script>
+    <script src="../static/js/Product.js"></script>
+    <script src="../static/js/ViewModel.js"></script>
+    <script src="../static/js/script.js"></script>
 
 </body>
 

@@ -62,6 +62,20 @@ aside {
 .no-padding {
   padding: 0;
 }
+
+.product-detail-view {
+    position: fixed;
+    width: 100%;
+    z-index: 10;
+    background: brown;
+    top: 20%;
+    padding: 100px;
+    left: 0;
+    display: none;
+}
+.float-left-imp {
+  float: left;
+}
 .navbar-default {
   background-color: white;
   border-color: rgba(34, 34, 34, 0.05);

@@ -17,16 +17,21 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    def get_images(self):
-        qs = ProductImage.objects.filter(product=self.id)
-
-        return qs
-
-    def get_thumbs(self):
+    @property
+    def thumbs(self):
         qs = ProductImage.objects.filter(product=self.id)
         urls = []
         for i in qs:
-            urls.append(i.thumb)
+            urls.append(i.thumb.url)
+
+        return urls
+
+    @property
+    def images(self):
+        qs = ProductImage.objects.filter(product=self.id)
+        urls = []
+        for i in qs:
+            urls.append(i.image.url)
 
         return urls
 
@@ -42,6 +47,9 @@ class ProductImage(models.Model):
     date = models.DateTimeField(default=timezone.now)
     image = models.ImageField(upload_to='uploads/')
     thumb = models.ImageField(blank=True, null=True, default='')
+
+    def __str__(self):
+        return self.thumb.url
 
     class Meta:
         db_table = 'product_image'
