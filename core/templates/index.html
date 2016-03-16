@@ -153,7 +153,12 @@
       {% if products_all_count > at_page %}
         <div class="container">
           <div class="text-center row">
-            <a href="javascript:get_all_products()" class="btn btn-primary btn-xl">Вся продукция...</a>
+              <!-- ko if: products.expanded() -->
+              <a href="" data-bind="click: getInitProducts, text: 'Свернуть'" class="btn btn-primary btn-xl"></a>
+              <!-- /ko -->
+              <!-- ko if: !products.expanded() -->
+              <a href="" data-bind="click: getAllProducts(), text: 'Вся продукция'" class="btn btn-primary btn-xl"></a>
+              <!-- /ko -->
           </div>
         </div>
       {% endif %}

@@ -10,24 +10,52 @@ function ViewModel() {
     self.msg = ko.observable("");
     self.productsInCart = ko.observableArray();
     self.products = ko.observableArray();
+    self.products.expanded = ko.observable(false);
+    self.init = function () {
+        self.getInitProducts();
+        // self.updateCart();
+    }
 
     // for (var i in fields) {console.log(fields[i]);} // think how to implement it
-
-    $.get("products/all/").then(function (resp) {
-        products = JSON.parse(resp.products);
-        console.log(products);
-        images_dir = resp.images_dir;
-        if(resp.length == 0) {
-            // TODO: handle it?
-        } else {
-            self.products.removeAll();
-            for (var i = 0; i < products.length; i++) {
-                product = new Product(products[i].fields.id, products[i].fields.name, products[i].fields.cost, products[i].fields.in_stock, products[i].fields.thumbs, products[i].fields.images);
-                self.products.push(product);
+    self.getInitProducts = function () {
+        $.get("products/").then(function (resp) {
+            products = JSON.parse(resp.products);
+            console.log(products);
+            images_dir = resp.images_dir;
+            if(resp.length == 0) {
+                // TODO: handle it?
+            } else {
+                self.products.removeAll();
+                for (var i = 0; i < products.length; i++) {
+                    product = new Product(products[i].fields.id, products[i].fields.name, products[i].fields.cost, products[i].fields.in_stock, products[i].fields.thumbs, products[i].fields.images);
+                    self.products.push(product);
+                }
+                console.log(self.products());
             }
-            console.log(self.products());
+        }).always();
+        self.products.expanded(false);
+    }
+
+    self.getAllProducts = function() {
+        return function() {
+            $.get("products/all/").then(function (resp) {
+                products = JSON.parse(resp.products);
+                console.log(products);
+                images_dir = resp.images_dir;
+                if(resp.length == 0) {
+                    // TODO: handle it?
+                } else {
+                    self.products.removeAll();
+                    for (var i = 0; i < products.length; i++) {
+                        product = new Product(products[i].fields.id, products[i].fields.name, products[i].fields.cost, products[i].fields.in_stock, products[i].fields.thumbs, products[i].fields.images);
+                        self.products.push(product);
+                    }
+                    console.log(self.products());
+                }
+            }).always();
+            self.products.expanded(true);
         }
-    }).always();
+    }
 
     self.updateCart = function() {
         $.get("/cart/update/").then(function (resp) {
@@ -42,7 +70,6 @@ function ViewModel() {
             }
         }).always();
     };
-    self.updateCart(); // THIS line is very necessary!!! it updates cart no matter on what page you are
 
     self.deleteFromCart = function(item_id) {
         return function() {

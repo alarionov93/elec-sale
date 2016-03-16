@@ -71,6 +71,10 @@ aside {
     top: 20%;
     padding: 100px;
     left: 0;
+    display: none;
+}
+.float-left-imp {
+  float: left;
 }
 .navbar-default {
   background-color: white;

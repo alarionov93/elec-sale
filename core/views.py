@@ -56,20 +56,34 @@ def index(request):
     return render(request, 'product-tile.html', ctx)
 
 
-def products_all(request):
+def products(request):
     if request.is_ajax():
-        # some code
-        products = models.Product.objects.filter(in_stock=1).all()
+        limit_val = 3
+        products = models.Product.objects.filter(in_stock=1).order_by('?')[:limit_val]
+        products_all_count = models.Product.objects.filter(in_stock=1).count()
 
-        # for product in products:
-        #     product.thumbs = product.productimage_set.all()
         serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images'])
         json_model = serializer.serialize(queryset=products)
-        # products = json.loads(json_model)
-        # for product in products:
-        #     product.thumbs = [x.url for x in product.get_thumbs()]
-        #     product.some_prop = '1234'
-        # data = json.dumps(products[0])
+
+        ctx = {
+            'products': json_model,
+            'images_dir': settings.MEDIA_URL,
+            'at_page': limit_val,
+            'products_all_count': products_all_count,
+        }
+
+        return JsonResponse(ctx)
+    else:
+        raise Http404('Not found')
+
+
+def products_all(request):
+    if request.is_ajax():
+        products = models.Product.objects.filter(in_stock=1).all()
+
+        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images'])
+        json_model = serializer.serialize(queryset=products)
+
         ctx = {
             'products': json_model,
             'images_dir': settings.MEDIA_URL,

@@ -3,6 +3,7 @@
  */
 
 ;
-
-ko.applyBindings(new ViewModel());
+VM = new ViewModel();
+ko.applyBindings(VM);
+VM.init();
 
