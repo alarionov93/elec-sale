@@ -74,7 +74,7 @@
     <header>
         <div class="header-content">
             <div class="header-content-inner">
-                <h1>Your Favorite Source of Free Bootstrap Themes</h1>
+                <h1>Твоё любимое место покупки электроники</h1>
                 <hr>
                 <p>Мы решили сделать электронику в Перми доступней! Если Вы начинающий специалист, и для Вашего проекта требуются Arduino или Raspberry и модули к ним,
                   значит Вы не случайно оказалить на этой странице. Тут Вы можете приобрести электронику для совего хобби, или же работы по ценам, выгодно отличающимся от конкурентов. Вся представленная продукция в наличии. </p>
@@ -148,6 +148,15 @@
 
             </div>
         </div>
+    </section>
+    <section id="all-products-link">
+      {% if products_count > max_at_page %}
+        <div class="container">
+          <div class="text-center row">
+            <a href="#" class="btn btn-primary btn-xl">Вся продукция...</a>
+          </div>
+        </div>
+      {% endif %}
     </section>
 
     <!--<aside class="bg-dark">

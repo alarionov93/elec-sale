@@ -1,25 +1,31 @@
-{% extends '_base.html' %}
+{% extends 'index.html' %}
 
 
 {% block product-tiles %}
-
+{% load staticfiles %}
 
 {% for product in products %}
-  <div class="col-lg-4 col-sm-6">
+  {% if forloop.counter0 < max_at_page %}
+    <div class="col-lg-4 col-sm-6">
       <a href="#" class="portfolio-box">
-          <img src="../static/img/portfolio/3.jpg" class="img-responsive" alt="">
+        {% for thumb in product.get_thumbs %}
+          {% if forloop.counter0 == 0 %}
+            <img src="{{ images_dir }}{{ thumb }}" class="img-responsive" alt="">
+          {% endif %}
+        {% endfor %}
           <div class="portfolio-box-caption">
               <div class="portfolio-box-caption-content">
                   <div class="project-category text-faded">
                       {{ product.name }}
                   </div>
                   <div class="project-name">
-                      {{ product.cost }}
+                      {{ product.cost }} <i class="fa fa-rouble"></i>
                   </div>
               </div>
           </div>
       </a>
-  </div>
+    </div>
+  {% endif %}
 {% endfor %}
 
 {% endblock %}
