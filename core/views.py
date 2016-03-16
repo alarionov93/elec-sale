@@ -1,17 +1,80 @@
+from io import StringIO
 import random
+from django.core import serializers
+import json
+
+from django.core.serializers.json import Serializer
+from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render
 from core import models
 from elec_site import settings
+from django.forms.models import model_to_dict
 
+class JSONSerializer(Serializer):
+
+    fields = []
+
+    def __init__(self, fields=fields):
+        super(JSONSerializer, self).__init__()
+        self.fields = fields
+
+    def serialize(self, queryset, **options):
+        self.options = options
+        self.stream = options.get("stream", StringIO())
+        self.start_serialization()
+        self.use_natural_primary_keys = True
+        self.first = True
+
+        for obj in queryset:
+            self.start_object(obj)
+            for field in self.fields:
+                self.handle_field(obj, field)
+            self.end_object(obj)
+            if self.first:
+                self.first = False
+        self.end_serialization()
+
+        return self.getvalue()
+
+    def handle_field(self, obj, field):
+        self._current[field] = getattr(obj, field)
+
+
+# TODO: rewrite this shit using extending and django CBV !!
 
 def index(request):
-    products = models.Product.objects.filter(in_stock=1).order_by('?')
+    limit_val = 3
+    products = models.Product.objects.filter(in_stock=1).order_by('?')[:limit_val]
+    products_all_count = models.Product.objects.filter(in_stock=1).count()
     ctx = {
         'products': products,
         'images_dir': settings.MEDIA_URL,
-        'max_at_page': 3,
-        'products_count': len(products),
+        'at_page': limit_val,
+        'products_all_count': products_all_count,
     }
 
     return render(request, 'product-tile.html', ctx)
 
+
+def products_all(request):
+    if request.is_ajax():
+        # some code
+        products = models.Product.objects.filter(in_stock=1).all()
+
+        # for product in products:
+        #     product.thumbs = product.productimage_set.all()
+        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images'])
+        json_model = serializer.serialize(queryset=products)
+        # products = json.loads(json_model)
+        # for product in products:
+        #     product.thumbs = [x.url for x in product.get_thumbs()]
+        #     product.some_prop = '1234'
+        # data = json.dumps(products[0])
+        ctx = {
+            'products': json_model,
+            'images_dir': settings.MEDIA_URL,
+        }
+
+        return JsonResponse(ctx)
+    else:
+        raise Http404('Not found')
