@@ -1,13 +1,19 @@
+import os
+
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django import forms
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import ContextMixin, View
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView
 from core import models
-from app_admin.forms import ProductForm, ProductImageForm
+from bootstrap3.templatetags.bootstrap3 import bootstrap_field
+from app_admin.forms import ProductForm
+from PIL import Image
+import uuid
 
 LOGIN_REDIRECT_URL = '/admin/login/'
 
@@ -107,7 +113,7 @@ class ProductCreate(CreateView, AdminContext, WithHeader):
 
         return ctx
 
-    def get_form(self, form_class=ProductForm):
+    def get_form(self, form_class=None):
         form = super(ProductCreate, self).get_form()
 
         return form
@@ -135,14 +141,61 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
     def get_context_data(self, **kwargs):
         ctx = super(ProductUpdate, self).get_context_data()
         ctx['form'] = self.get_form()
+        # ctx['form'].fields['images'] = self.object.get_images()
+        images_qs = self.object.get_images()
+        # img_urls = []
+        # for i in images_qs:
+        #     img_urls.append(i.image)
+        ctx['images'] = images_qs
 
         return ctx
 
     def get_form(self, form_class=ProductForm):
         form = super(ProductUpdate, self).get_form()
+        # images = self.object.get_images()
+        # img_urls = []
+        # for i in images:
+        #     img_urls.append(i.thumbnail.url)
+        # form.fields['images'] = forms.ImageField()
+        # form.fields['images'].initial = images
 
         return form
 
+
+    def get_parent_link(self):
+        return reverse('products_list')
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+                self.model,
+                id=self.kwargs['pk']
+        )
+
+    def get_success_url(self):
+        return '../%s/' % self.object.id
+
+# TODO: implement this class properly!!
+class ProductView(DetailView, AdminContext, WithHeader):
+    page_header = 'Изменить продукт'
+    template_name = 'products/update.html'
+
+    model = models.Product
+    fields = ['name', 'cost', ]
+    context_object_name = 'product'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProductView, self).get_context_data()
+        # ctx['form'] = self.get_form()
+        # ctx['form'].fields['images'] = self.object.get_images()
+        # images = self.object.get_images()
+        # img_urls = []
+        # for i in images:
+        #     img_urls.append(i.thumbnail.url)
+        # form.fields['images'] = forms.ImageField()
+        # form.fields['images'].initial = images
+        ctx['images'] = self.object.get_images()
+
+        return ctx
 
     def get_parent_link(self):
         return reverse('products_list')
@@ -161,33 +214,69 @@ class ProductRemove():
     pass
 
 
-class ProductImageCreate(CreateView, AdminContext, WithHeader):
-    model = models.ProductImage
-    form_class = ProductImageForm
-
+class ImageCreate(CreateView, AdminContext, WithHeader):
     page_header = 'Добавить изображение'
     template_name = 'images/create.html'
 
+    model = models.ProductImage
+    fields = ['product', 'image' ]
     context_object_name = 'image'
 
     def get_context_data(self, **kwargs):
-        ctx = super(ProductImageCreate, self).get_context_data()
+        ctx = super(ImageCreate, self).get_context_data()
         ctx['form'] = self.get_form()
 
         return ctx
 
-    def get_form(self, form_class=ProductImageForm):
-        form = super(ProductImageCreate, self).get_form()
+    def post(self, request, *args, **kwargs):
+        image = self.request.FILES.get('image')
+        name = image.name
+        splitted = name.split('.')
+        ext_idx = len(splitted) - 1
+        ext = splitted[ext_idx]
+        image.name = str(uuid.uuid4()) + '.' + str(ext)
+
+        product_id = self.request.POST.get('product')
+
+        return super(ImageCreate, self).post(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        form = super(ImageCreate, self).get_form()
 
         return form
 
-    def get_parent_link(self):
-        return reverse('products_list')
+    def form_invalid(self, form):
+
+        return super(ImageCreate, self).form_invalid(form)
 
     def form_valid(self, form):
-        product_image = form.save(commit=False)
-        product_image.save()
-        return super(ProductImageCreate, self).form_valid(form)
+        image = form.save(commit=False)
+        product_id = self.request.POST.get('product')
+        product = models.Product.objects.get(id=product_id)
+        image.product = product
+        image.save()
+
+        size = (600, 600)
+
+        full_link = image.image.file.name
+        infile = Image.open(full_link)
+        outfile = infile.fp.name.split('.')[0] + '_thumb' + '.jpg'
+
+        if infile != outfile:
+            try:
+                infile.thumbnail(size)
+                infile.save(outfile, "JPEG")
+            except IOError:
+                print("cannot create thumbnail for", infile)
+
+        rel_name_spl = outfile.split('/')
+        file_idx = len(rel_name_spl) - 1
+        dir_idx = len(rel_name_spl) - 2
+        image.thumb = rel_name_spl[dir_idx] + '/' + rel_name_spl[file_idx]
+        image.save()
+
+
+        return super(ImageCreate, self).form_valid(form)
 
     def get_success_url(self):
         return '../%s/' % self.object.id

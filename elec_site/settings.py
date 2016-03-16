@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'core',
     'app_admin',
     'bootstrap3',
+    'imagekit',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -83,8 +84,12 @@ WSGI_APPLICATION = 'elec_site.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'elec_db',
+        'USER': 'sanya',
+        'PASSWORD': 'afhyjcjdf123',
+        'HOST': '127.0.0.1',
+        'PORT': '',
     }
 }
 
@@ -110,3 +115,17 @@ if APPEND_SLASH == False:
     APPEND_SLASH = True
 
 STATIC_URL = '/static/'
+# IMAGE_CACHE_FOLDER = '/uploads/'
+# STATICFILES_DIRS = (
+#     # location of your application, should not be public web accessible
+#     '/home/sanya/PycharmProjects/elec_site/CACHE',
+# )
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'elec_site/media')

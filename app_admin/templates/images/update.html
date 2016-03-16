@@ -4,14 +4,11 @@
 {% block content %}
   <form action="" method="post" class="form">
     {% csrf_token %}
-    {% for field in form %}
-      {% bootstrap_field field %}
-    {% endfor %}
+    {% bootstrap_form form %}
     {% buttons %}
         <button type="submit" class="btn btn-primary">
             {% bootstrap_icon "plus" %} Сохранить
         </button>
     {% endbuttons %}
   </form>
-  <a href="{% url 'images_add'%}">Добавить изображение</a>
 {% endblock %}

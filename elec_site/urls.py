@@ -16,8 +16,10 @@ Including another URLconf
 from django.conf.urls import include, url
 from app_admin import urls as admin_urls
 from core import urls as site_urls
+from django.conf.urls.static import static
+from elec_site import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin_urls)),
     url(r'^', include(site_urls)),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
