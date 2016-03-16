@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from io import StringIO
 import random
 from django.core import serializers
@@ -92,3 +93,82 @@ def products_all(request):
         return JsonResponse(ctx)
     else:
         raise Http404('Not found')
+
+# Cart
+
+def add_to_cart(request, product_id):
+    prod_ids = []
+    cart = request.session.get('cart', None)
+    status = 0
+    if cart is not None:
+        d_cart = json.loads(cart)
+        prod_ids = d_cart # this line is here for sure that the deal is with list
+    else:
+        request.session['cart'] = ""
+    prod_ids.append(product_id)
+    s_cart = json.dumps(prod_ids)
+    request.session['cart'] = s_cart
+    # TODO: change status if something gone wrong
+    status = json.dumps({'status': status})
+
+    return HttpResponse(status, content_type='application/json')
+
+
+def update_cart(request):
+    cart = request.session.get('cart', None)
+    d_cart = []
+    products = []
+    if cart is not None:
+        d_cart = json.loads(cart)
+        for val in d_cart:
+            p = models.Product.objects.get(pk=val)
+            products.append(p)
+    s_cart = serializers.serialize('json', products, use_natural_foreign_keys=True, use_natural_primary_keys=True)
+
+    return HttpResponse(s_cart, content_type='application/json')
+
+
+def cart_view(request):
+
+    return render(request, 'cart.html')
+
+
+def delete_from_cart(request, cart_item):
+    prod_ids = []
+    cart = request.session.get('cart', None)
+    status = 0
+    if cart is not None:
+        d_cart = json.loads(cart)
+        prod_ids = d_cart # TODO: is this line necessary? then we exactly know that type of prod_ids is list, not other!
+        try:
+            item_to_delete = prod_ids.pop(int(cart_item))
+        except KeyError:
+            status = 1
+            raise Http404("Sorry, but index is out of range.")
+        except:
+            status = 2
+            raise Http404("Unhandled exception.")
+        s_cart = json.dumps(prod_ids)
+        if len(prod_ids) == 0:
+            del request.session['cart']
+        else:
+            request.session['cart'] = s_cart
+
+    else:
+        request.session['cart'] = ""
+    status = json.dumps({'status': status})
+
+    return HttpResponse(status, content_type='application/json')
+
+
+def remove_all(request):
+    cart = request.session.get('cart', None)
+    # TODO: change with try-except here!!
+    status = 0
+    if cart is not None:
+        del request.session['cart']
+    else:
+        status = 1
+    status = json.dumps({'status': status})
+
+    return HttpResponse(status, content_type='application/json')
