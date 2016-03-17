@@ -4,7 +4,7 @@
 {% load staticfiles %}
 <div data-bind="foreach: { data: products, as : 'product' }">
   <div class="col-lg-4 col-sm-6 no-padding">
-    <a href="#" class="portfolio-box">
+    <a href="" class="portfolio-box">
       <!--ko foreach: { data: product.thumbs, as: 'thumb' } -->
         <img data-bind="attr: { src: thumb }" class="img-responsive" alt="">
       <!-- /ko -->
@@ -14,7 +14,7 @@
             <div class="project-name">
               <p><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></p>
             </div>
-            <div class="text-blue"><i class="fa fa-4x fa-cart-arrow-down"></i></div>
+            <div class="text-blue"><i data-bind="click: $root.addToCart(product.id)" class="fa fa-4x fa-cart-arrow-down"></i></div>
         </div>
       </div>
     </a>

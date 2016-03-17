@@ -120,12 +120,13 @@ def update_cart(request):
     products = []
     if cart is not None:
         d_cart = json.loads(cart)
-        for val in d_cart:
-            p = models.Product.objects.get(pk=val)
-            products.append(p)
-    s_cart = serializers.serialize('json', products, use_natural_foreign_keys=True, use_natural_primary_keys=True)
+    #     for val in d_cart:
+    #         p = models.Product.objects.get(pk=val)
+    #         products.append(p)
+    # s_cart = serializers.serialize('json', products, use_natural_foreign_keys=True, use_natural_primary_keys=True)
 
-    return HttpResponse(s_cart, content_type='application/json')
+
+    return HttpResponse(cart, content_type='application/json')
 
 
 def cart_view(request):

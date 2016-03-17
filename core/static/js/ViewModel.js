@@ -8,12 +8,12 @@ function ViewModel() {
     self.added = ko.observable(false);
     self.removed = ko.observable(false);
     self.msg = ko.observable("");
-    self.productsInCart = ko.observableArray();
     self.products = ko.observableArray();
+    self.cart = ko.observableArray();
     self.products.expanded = ko.observable(false);
     self.init = function () {
         self.getInitProducts();
-        // self.updateCart();
+        self.updateCart();
     }
 
     // for (var i in fields) {console.log(fields[i]);} // think how to implement it
@@ -60,43 +60,48 @@ function ViewModel() {
     self.updateCart = function() {
         $.get("/cart/update/").then(function (resp) {
             console.log(resp);
-            if(resp.length == 0) {
+            if(resp.length == 0) { // TODO: change error handling logic here!
                 // TODO: handle it?
             } else {
-                self.productsInCart.removeAll();
-                self.productsInCart(resp);
-                var products = self.productsInCart();
+                self.cart.removeAll();
+                self.cart(resp);
+                var products = self.cart();
                 console.log(products);
             }
         }).always();
-    };
-
-    self.deleteFromCart = function(item_id) {
-        return function() {
-            $.get("/cart/delete/"+encodeURIComponent(item_id)).then(function (resp) {
-                // delete from productsInCart, if server deletes from session
-                console.log(resp.status);
-                if (resp.status == 0) {
-                    self.productsInCart.pop(item_id);
-                }
-            }).always();
-        }
     };
 
     self.addToCart = function(product_id) {
         return function() {
             $.get("/cart/add/"+encodeURIComponent(product_id)).then(function (resp) {
                 console.log(resp.status);
-                self.updateCart();
+                if (resp.status == 0) {
+                    self.cart.push(self.products()[product_id]);
+                } else {
+                    console.log("Error:" + resp.status);                    
+                }
+                // self.updateCart();
             }).always();
         }
     };
+
+//     self.deleteFromCart = function(item_id) {
+//         return function() {
+//             $.get("/cart/delete/"+encodeURIComponent(item_id)).then(function (resp) {
+//                 // delete from productsInCart, if server deletes from session
+//                 console.log(resp.status);
+//                 if (resp.status == 0) {
+//                     self.productsInCart.pop(item_id);
+//                 }
+//             }).always();
+//         }
+//     };
 
     self.removeAllFromCart = function() {
         $.get("/cart/remove_all/").then(function (resp) {
             console.log(resp.status);
             if (resp.status == 0) {
-                self.productsInCart.removeAll();
+                self.cart.removeAll();
             }
         }).always();
     };

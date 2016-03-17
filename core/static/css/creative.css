@@ -76,6 +76,9 @@ aside {
 .float-left-imp {
   float: left;
 }
+.cart-widget {
+  color: #FF5E23;
+}
 .navbar-default {
   background-color: white;
   border-color: rgba(34, 34, 34, 0.05);

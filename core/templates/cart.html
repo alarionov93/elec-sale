@@ -1,0 +1,16 @@
+<p>Your cart:</p>
+<!--<button data-bind="click: updateCart">Update</button>-->
+
+<!-- ko if: productsInCart().length > 0 -->
+    <ul data-bind="foreach: { data: productsInCart, as: 'product' }">
+        <li data-bind="text: product.fields.product_name"></li>
+        <p data-bind="text: $root.prodHowMuch(product)"></p>
+        <button data-bind="click: $root.deleteFromCart($index())">Delete</button>
+    </ul>
+    <button data-bind="click: $root.removeAllFromCart">Remove all</button>
+    <a href="{% url 'create_order' %}">Make order</a>
+<!-- /ko -->
+
+<!-- ko if: productsInCart().length == 0 -->
+    <p>Nothing added yet</p>
+<!-- /ko -->
