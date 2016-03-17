@@ -1,0 +1,23 @@
+{% extends "index.html" %}
+
+
+{% block content %}
+
+
+User's orders list:
+<p>Your orders:</p>
+{% if orders_length > 0  %}
+    <ul>
+        {% for order in orders %}
+            <li>
+                Order id: {{ order.id }} <br>
+                Order info: <br>
+                Order date: {{ order.date }} <br>
+            </li>
+        {% endfor %}
+    </ul><br>
+{% else %}
+    {{ orders }}
+{% endif %}
+
+{% endblock %}

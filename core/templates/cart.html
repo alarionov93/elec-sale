@@ -1,16 +1,41 @@
-<p>Your cart:</p>
-<!--<button data-bind="click: updateCart">Update</button>-->
+{% extends '_base.html' %}
 
-<!-- ko if: productsInCart().length > 0 -->
-    <ul data-bind="foreach: { data: productsInCart, as: 'product' }">
-        <li data-bind="text: product.fields.product_name"></li>
-        <p data-bind="text: $root.prodHowMuch(product)"></p>
-        <button data-bind="click: $root.deleteFromCart($index())">Delete</button>
-    </ul>
-    <button data-bind="click: $root.removeAllFromCart">Remove all</button>
-    <a href="{% url 'create_order' %}">Make order</a>
-<!-- /ko -->
+{% block content %}
 
-<!-- ko if: productsInCart().length == 0 -->
-    <p>Nothing added yet</p>
-<!-- /ko -->
+<section id="cart">
+  <div class="container">
+    <div class="row">
+      <!-- ko if: cart().length > 0 -->
+        <p>Your cart:</p>
+        <table class="table">
+          <thead>
+            <th>#</th>
+            <th>Наименование</th>
+            <th>Цена</th>
+            <th>Удалить</th>
+          </thead>
+          <tbody data-bind="foreach: { data: cart(), as: 'product' }">
+            <td data-bind="text: $index()+1"></td>
+            <td data-bind="text: product.name"></td>
+            <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
+            <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart($index())"></i></td>
+          </tbody>
+        </table>
+        <button type="button" class="btn btn-xl btn-danger" data-bind="click: $root.removeAllFromCart">
+          <i class="fa fa-remove"></i> Удалить все
+        </button>
+        <button type="button" class="btn btn-xl btn-success" data-bind="click: $root.makeOrder">
+          <i class="fa fa-shopping-bag"></i> Заказать
+        </button>
+      <!-- /ko -->
+
+      <!-- ko if: cart().length == 0 -->
+        <p>Вы еще не совершили покупок..</p>
+        <p><a href="{% url 'site_index' %}#products" type="button" class="btn btn-primary">
+          <i class="fa fa-shopping-bag"></i> Исправить
+        </a> это ужасное положение вещей!</p>
+      <!-- /ko -->
+    </div>
+  </div>
+</section>
+{% endblock %}

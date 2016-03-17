@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from io import StringIO
 import random
 from django.core import serializers
@@ -54,7 +55,7 @@ def index(request):
         'products_all_count': products_all_count,
     }
 
-    return render(request, 'product-tile.html', ctx)
+    return render(request, 'product-tiles.html', ctx)
 
 
 def products(request):
@@ -116,15 +117,14 @@ def add_to_cart(request, product_id):
 
 def update_cart(request):
     cart = request.session.get('cart', None)
-    d_cart = []
     products = []
     if cart is not None:
         d_cart = json.loads(cart)
-    #     for val in d_cart:
-    #         p = models.Product.objects.get(pk=val)
-    #         products.append(p)
-    # s_cart = serializers.serialize('json', products, use_natural_foreign_keys=True, use_natural_primary_keys=True)
-
+        for val in d_cart:
+            p = models.Product.objects.get(pk=val)
+            products.append(p)
+    serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images'])
+    cart = serializer.serialize(queryset=products)
 
     return HttpResponse(cart, content_type='application/json')
 
@@ -173,3 +173,52 @@ def remove_all(request):
     status = json.dumps({'status': status})
 
     return HttpResponse(status, content_type='application/json')
+
+# @login_required
+def create_order(request):
+    cart = request.session.get('cart', None)
+    ctx = {}
+    order_items_list = []
+    if cart is not None:
+        try:
+            order = models.Order(user=request.user)
+            order_items_list = json.loads(cart)
+            order.save()
+            for val in order_items_list:
+                prod = models.Product.objects.get(pk=val)
+                item = models.OrderItem(product=prod, order=order)
+                item.save()
+                order.orderitem_set.add(item)
+            order.save()
+            del request.session['cart']
+        # TODO: catch all possible exceptions here!!
+        except IntegrityError:
+            raise Http404("Sorry, value of key is duplicated!")
+        except:
+            raise Http404("Unhandled exception.")
+        ctx = {
+            'order_items': order.orderitem_set.all(),
+        }
+    else:
+        return Http404("Not found.")
+
+    return render(request, 'order_created.html', ctx)
+
+
+# @login_required
+def orders_view(request):
+    orders_list = list(models.Order.objects.filter(user=request.user))
+    # for order in orders_list:
+    #     items = order.orderitem_set.all()
+    if len(orders_list) != 0:
+        ctx = {
+            'orders': orders_list,
+            'orders_length': len(orders_list),
+        }
+    else:
+        ctx = {
+            'orders': "You have no orders yet.",
+            'orders_length': 0,
+        }
+
+    return render(request, 'orders.html', ctx)

@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+    <p>Order created!</p>
+    <ul>
+        Positions list:
+        {% for order_item in order_items %}
+            <li>{{ order_item.product }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

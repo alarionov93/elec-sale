@@ -56,3 +56,20 @@ class ProductImage(models.Model):
         verbose_name = 'Изображение'
         verbose_name_plural = 'Изображения'
 
+
+class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    # user = models.ForeignKey(MyUser)
+    # status = models.IntegerField(null=True, blank=True, default=0)
+    date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return
+
+
+class OrderItem(models.Model):
+    id = models.AutoField(primary_key=True)
+    product = models.ForeignKey('Product', to_field='id', db_column='product_id',
+                                unique=False, blank=False, null=False)
+    order = models.ForeignKey('Order', to_field='id', db_column='order_id',
+                                unique=False, blank=False, null=False)
