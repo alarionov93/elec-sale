@@ -79,6 +79,29 @@ aside {
 .cart-widget {
   color: #FF5E23;
 }
+.order-form {
+    width: 40%;
+    top: 20%;
+    left: 30%;
+    z-index: 99 !important;
+    position: fixed;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid rgb(236, 236, 236);
+    background: #fff;
+}
+.err-in-input {
+  border-color: #F00;
+}
+.background {
+  z-index: 77 !important;
+  top: 0;
+  left: 0;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(34, 34, 34, 0.49);
+}
 .navbar-default {
   background-color: white;
   border-color: rgba(34, 34, 34, 0.05);
@@ -184,7 +207,7 @@ header .header-content .header-content-inner h1 {
   margin-bottom: 0;
 }
 header .header-content .header-content-inner hr {
-  margin: 30px auto;
+  /*margin: 30px auto;*/
 }
 header .header-content .header-content-inner p {
   font-weight: 300;

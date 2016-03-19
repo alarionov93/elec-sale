@@ -11,6 +11,32 @@ function ViewModel() {
     self.products = ko.observableArray();
     self.cart = ko.observableArray();
     self.products.expanded = ko.observable(false);
+    self.order = ko.observable();
+    self.orderCreated = ko.observable(false);
+    self.orderPopupShown = ko.observable(false);
+    self.customerPhone = ko.observable('');
+    self.customerEmail = ko.observable('');
+
+    self.customerPhone.isValid = ko.computed(function() {
+        var p = self.customerPhone();
+        return !!p && typeof p !== "undefined"
+        && p.length !== 0 && p.length > 6 && p.match(/\D/i) == null;
+    });
+    self.customerEmail.isValid = ko.computed(function() {
+        var e = self.customerEmail();
+        return !!e && typeof e !== "undefined"
+        && e.length !== 0 && e.includes("@");
+    });
+    self.cart.total = ko.computed(function() {
+        var total = 0;
+        if (self.cart() !== undefined && self.cart().length > 0) {
+            var products = self.cart();
+            for (var i = 0; i < products.length; i++) {
+                total += parseInt(products[i].cost);
+            }
+        }
+        return total;
+    });
     self.init = function () {
         self.getInitProducts();
         self.updateCart();
@@ -74,13 +100,17 @@ function ViewModel() {
         }).always();
     };
 
-    self.addToCart = function(product_id) {
+    self.addToCart = function(productId) {
         return function() {
-            $.get("/cart/add/"+encodeURIComponent(product_id)).then(function (resp) {
+            $.get("/cart/add/"+encodeURIComponent(productId)).then(function (resp) {
                 console.log(resp.status);
                 if (resp.status == 0) {
-                    var pushed = self.cart.push(self.products()[product_id]);
-                    console.log(pushed);
+                    for (var i = 0; i < self.products().length; i++) {
+                        if (self.products()[i].id == parseInt(productId)) {
+                            productToPush = self.products()[i];
+                            self.cart.push(productToPush);
+                        }
+                    }
                 } else {
                     console.log("Error:" + resp.status);                    
                 }
@@ -88,14 +118,14 @@ function ViewModel() {
         }
     };
 
-    self.deleteFromCart = function(item_id) {
+    self.deleteFromCart = function(itemId) {
         return function() {
-            $.get("/cart/delete/"+encodeURIComponent(item_id)).then(function (resp) {
+            $.get("/cart/delete/"+encodeURIComponent(itemId)).then(function (resp) {
                 // delete from productsInCart, if server deletes from session
                 console.log(resp.status);
                 if (resp.status == 0) {
                     console.log(self.cart());
-                    var deleted = self.cart.splice(item_id, 1);
+                    var deleted = self.cart.splice(itemId, 1);
                     console.log(deleted);
                 }
             }).always();
@@ -111,14 +141,58 @@ function ViewModel() {
         }).always();
     };
 
-    self.makeOrder = function() {
+    self.showMsg = function(msg, blockId) {
+        $(blockId).text(msg);
+        $(blockId).show();
+    };
+
+    self.hideMsg = function() {
+        $(blockId).hide();
+    }
+
+    self.showOrderPopup = function() {
         return function() {
-            $.get("/orders/create/").then(function (resp) {
-                console.log(resp.status);
-                if (resp.status == 0) {
-                    self.cart.removeAll();
-                }
-            }).always();
+            self.orderPopupShown(true);
         }
     }
+
+    self.hideOrderPopup = function() {
+        return function() {
+            self.orderPopupShown(false);
+        }
+    }
+
+    self.makeOrder = function() {
+        return function() {
+            // $("#order-form").validate();
+            $("#inputEmail").removeClass("err-in-input");
+            $("#inputPhone").removeClass("err-in-input");
+            if (self.customerPhone.isValid() && self.customerEmail.isValid()) {
+                var token = $('input[name*=csrf]').val();
+                $.post("/orders/create/", {
+                    phone: self.customerPhone(),
+                    email: self.customerEmail(),
+                    total: self.cart.total(),
+                    csrfmiddlewaretoken: token}).then(function (resp) {
+                    console.log(resp.status);
+                    if (resp.status == 0) {
+                        console.log(resp);
+                        self.cart.removeAll();
+                        var order = resp.order;
+                        self.order(new Order(order.date, order.number, order.phone, order.email, order.products, order.total, resp.success));
+                        self.orderCreated(true);
+                        self.hideOrderPopup();
+                    }
+                }).always();
+            } else if (!self.customerEmail.isValid()) {
+                $("#inputEmail").addClass("err-in-input");
+            } else if (!self.customerPhone.isValid()) {
+                $("#inputPhone").addClass("err-in-input");
+            }
+        }
+    };
+
+    $("#order-form").change(function () {
+
+    });
 }

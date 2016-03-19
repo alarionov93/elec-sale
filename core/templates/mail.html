@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../static/css/bootstrap.min.css" type="text/css">
+  <title>Order</title>
+</head>
+<body>
+  <p>{{ order.date }}</p>
+  <p>{{ order.number }}</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Наименование</th>
+        <th>Цена</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in order.products %}
+      <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.cost }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p>{{ order.total }}</p>
+</body>
+</html>

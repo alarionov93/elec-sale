@@ -1,46 +1,15 @@
-from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
-from io import StringIO
-import random
-from django.core import serializers
+import uuid
 import json
 
-from django.core.serializers.json import Serializer
+from core.mails import mail_body
+from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.http import Http404, JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from core import models
+from django.template import Template, Context
 from elec_site import settings
-from django.forms.models import model_to_dict
-
-class JSONSerializer(Serializer):
-
-    fields = []
-
-    def __init__(self, fields=fields):
-        super(JSONSerializer, self).__init__()
-        self.fields = fields
-
-    def serialize(self, queryset, **options):
-        self.options = options
-        self.stream = options.get("stream", StringIO())
-        self.start_serialization()
-        self.use_natural_primary_keys = True
-        self.first = True
-
-        for obj in queryset:
-            self.start_object(obj)
-            for field in self.fields:
-                self.handle_field(obj, field)
-            self.end_object(obj)
-            if self.first:
-                self.first = False
-        self.end_serialization()
-
-        return self.getvalue()
-
-    def handle_field(self, obj, field):
-        self._current[field] = getattr(obj, field)
-
+from core.json_serializer import JSONSerializer
 
 # TODO: rewrite this shit using extending and django CBV !!
 
@@ -174,51 +143,55 @@ def remove_all(request):
 
     return HttpResponse(status, content_type='application/json')
 
-# @login_required
+# TODO: product.count-- in create_order !!
 def create_order(request):
-    cart = request.session.get('cart', None)
-    ctx = {}
-    order_items_list = []
-    if cart is not None:
-        try:
-            order = models.Order(user=request.user)
-            order_items_list = json.loads(cart)
-            order.save()
-            for val in order_items_list:
-                prod = models.Product.objects.get(pk=val)
-                item = models.OrderItem(product=prod, order=order)
-                item.save()
-                order.orderitem_set.add(item)
-            order.save()
-            del request.session['cart']
-        # TODO: catch all possible exceptions here!!
-        except IntegrityError:
-            raise Http404("Sorry, value of key is duplicated!")
-        except:
-            raise Http404("Unhandled exception.")
-        ctx = {
-            'order_items': order.orderitem_set.all(),
-        }
+    if request.is_ajax() and request.method == 'POST':
+        cart = request.session.get('cart', None)
+        email = request.POST.get('email', None)
+        phone = request.POST.get('phone', None)
+        total = request.POST.get('total', None)
+        ctx = {}
+        if cart is not None and email and phone and total:
+            try:
+                order_number = str(uuid.uuid1())
+                order = models.Order(number=order_number, user_phone=phone, user_email=email, total=total)
+                order_items_list = json.loads(cart)
+                order.save()
+                for val in order_items_list:
+                    prod = models.Product.objects.get(pk=val)
+                    item = models.OrderItem(product=prod, order=order)
+                    item.save()
+                    order.orderitem_set.add(item)
+                order.save()
+                del request.session['cart']
+            # TODO: catch all possible exceptions here!!
+            except IntegrityError:
+                raise Http404("Sorry, value of key is duplicated!")
+            except:
+                raise Http404("Unhandled exception.")
+
+            ctx = {
+                'status': 0,
+                'order': order.to_json(),
+                'error': None,
+                'success': 'Ваш заказ принят, спасибо!'
+            }
+            body = mail_body(ctx)
+            # TODO: send one more email: for me to know about new order
+            # TODO: surround with try-except!!!!
+            status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, 'alarionov93@yandex.ru',
+                    ['alarionov93@yandex.ru'], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                    auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
+            ctx.update({'mail_stat': status})
+        else:
+            ctx = {
+                'status': 1,
+                'error': 'cart OR email OR phone is None',
+            }
     else:
-        return Http404("Not found.")
-
-    return render(request, 'order_created.html', ctx)
-
-
-# @login_required
-def orders_view(request):
-    orders_list = list(models.Order.objects.filter(user=request.user))
-    # for order in orders_list:
-    #     items = order.orderitem_set.all()
-    if len(orders_list) != 0:
         ctx = {
-            'orders': orders_list,
-            'orders_length': len(orders_list),
-        }
-    else:
-        ctx = {
-            'orders': "You have no orders yet.",
-            'orders_length': 0,
+            'status': 2,
+            'error': 'only ajax POST allowed',
         }
 
-    return render(request, 'orders.html', ctx)
+    return HttpResponse(json.dumps(ctx), content_type='application/json')

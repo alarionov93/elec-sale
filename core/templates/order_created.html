@@ -1,12 +1,6 @@
-{% extends "index.html" %}
+{% extends "cart.html" %}
 
-{% block content %}
+{% block order %}
 
     <p>Order created!</p>
-    <ul>
-        Positions list:
-        {% for order_item in order_items %}
-            <li>{{ order_item.product }}</li>
-        {% endfor %}
-    </ul>
 {% endblock %}

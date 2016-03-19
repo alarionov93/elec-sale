@@ -15,7 +15,6 @@ urlpatterns = [
     url(r'^cart/delete/(?P<cart_item>[0-9]+)/$', views.delete_from_cart, name='delete_from_cart'),
 
     # orders
-    url(r'^orders/$', views.products_all, name='orders'),
-    url(r'^orders/create/$', views.products_all, name='create_order'),
-    url(r'^orders/create/$', views.products_all, name='create_order'),
+    # url(r'^orders/$', views.products_all, name='orders'),
+    url(r'^orders/create/$', views.create_order, name='create_order'),
 ]

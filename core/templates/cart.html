@@ -6,34 +6,107 @@
   <div class="container">
     <div class="row">
       <!-- ko if: cart().length > 0 -->
-        <p>Your cart:</p>
         <table class="table">
           <thead>
+          <tr></tr>
             <th>#</th>
             <th>Наименование</th>
             <th>Цена</th>
             <th>Удалить</th>
           </thead>
           <tbody data-bind="foreach: { data: cart(), as: 'product' }">
-            <td data-bind="text: $index()+1"></td>
-            <td data-bind="text: product.name"></td>
-            <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
-            <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart($index())"></i></td>
+            <tr>
+              <td data-bind="text: $index()+1"></td>
+              <td data-bind="text: product.name"></td>
+              <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
+              <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart($index())"></i></td>
+            </tr>
+            <!-- ko if: $index() == $root.cart().length-1 -->
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Сумма заказа: <b data-bind="text: $root.cart.total"></b> <i class="fa fa-ruble"></i></td>
+              </tr>
+            <!-- /ko -->
           </tbody>
         </table>
         <button type="button" class="btn btn-xl btn-danger" data-bind="click: $root.removeAllFromCart">
           <i class="fa fa-remove"></i> Удалить все
         </button>
-        <button type="button" class="btn btn-xl btn-success" data-bind="click: $root.makeOrder">
+        <button type="button" class="btn btn-xl btn-success" data-bind="click: $root.showOrderPopup()">
           <i class="fa fa-shopping-bag"></i> Заказать
         </button>
+        <!-- ko if: orderPopupShown() -->
+        <div class="background"></div>
+        <div class="order-form">
+          <i class="fa fa-remove" data-bind="click: hideOrderPopup()" style="float: right; cursor: pointer;"></i>
+          <form id="order-form" class="form-horizontal" method="post" action="">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="inputEmail" class="col-sm-4 control-label"></label>
+              <div class="col-sm-10">
+                <input type="email" id="inputEmail" class="form-control input-lg"
+                       data-bind="value: customerEmail" placeholder="Email" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputPhone" class="col-sm-4 control-label"></label>
+              <div class="col-sm-10">
+                <input type="text" id="inputPhone" class="input-lg form-control bfh-phone"
+                       data-bind="value: customerPhone" data-format="+7 (ddd) ddd-dddd" placeholder="Телефон" required>
+              </div>
+            </div>
+            <!--<div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox"> Remember me
+                  </label>
+                </div>
+              </div>
+            </div>-->
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-xl btn-success" data-bind="click: $root.makeOrder()">
+                  <i class="fa fa-check-circle"></i> Подтвердить
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <!-- /ko -->
       <!-- /ko -->
 
-      <!-- ko if: cart().length == 0 -->
+      <!-- ko if: cart().length == 0 && orderCreated() == false -->
         <p>Вы еще не совершили покупок..</p>
         <p><a href="{% url 'site_index' %}#products" type="button" class="btn btn-primary">
           <i class="fa fa-shopping-bag"></i> Исправить
         </a> это ужасное положение вещей!</p>
+      <!-- /ko -->
+      <!-- ko if: orderCreated() == true -->
+        <h3 data-bind="text: order().success"></h3>
+        <p>Номер заказа: <b data-bind="text: order().number"></b></p>
+        <p>Дата заказа: <b data-bind="text: order().date"></b></p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Наименование</th>
+              <th>Цена</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach: { data: order().products, as: 'product' }">
+            <tr>
+              <td data-bind="text: $index()+1"></td>
+              <td data-bind="text: product.name"></td>
+              <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Сумма заказа: <b data-bind="text: order().total"></b> <i class="fa fa-ruble"></i></p>
+        <p>Мы отправили информацию о заказе на Вашу электронную почту '<b data-bind="text: order().email"></b>'</p>
+        <a href="{% url 'site_index' %}#products">Продолжить покупки</a>
       <!-- /ko -->
     </div>
   </div>

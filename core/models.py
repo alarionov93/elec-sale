@@ -1,8 +1,8 @@
 from django.db import models
 from django.utils import timezone
-from imagekit.models import ImageSpecField
-from imagekit.processors import ResizeToFit
-from elec_site import settings
+from core.json_serializer import JSONSerializer
+from django.utils.datetime_safe import strftime
+from django.utils.timezone import localtime
 
 THUMB_SIZE = 200
 IN_STOCK = 1
@@ -10,7 +10,8 @@ OUT_OF_STOCK = 0
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(null=False, blank=False, max_length=100, default='', unique=False, verbose_name='Наименование')
+    name = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
+                            verbose_name='Наименование')
     cost = models.PositiveIntegerField(null=False, blank=False, verbose_name='Цена')
     in_stock = models.IntegerField(null=False, blank=False, unique=False, default=IN_STOCK)
 
@@ -34,6 +35,13 @@ class Product(models.Model):
             urls.append(i.image.url)
 
         return urls
+
+    def to_json(self):
+        return {
+            'id':self.id,
+            'name': self.name,
+            'cost': self.cost,
+        }
 
     class Meta:
         db_table = 'products'
@@ -59,13 +67,36 @@ class ProductImage(models.Model):
 
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
+    number = models.CharField(null=False, blank=False, max_length=100, default='', unique=False, verbose_name='Номер заказа')
     # user = models.ForeignKey(MyUser)
     # status = models.IntegerField(null=True, blank=True, default=0)
+    total = models.PositiveIntegerField(null=False, blank=False, unique=False, default=0)
+    user_phone = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
+                                  verbose_name='Телефон')
+    user_email = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
+                                  verbose_name='Email')
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return
+        return '%s %s %s' % (self.number, self.user_email, self.user_phone)
 
+    def to_json(self):
+        if not self.id:
+            return {}
+
+        order_items = OrderItem.objects.filter(order_id=self.id)
+        j = { 'products': [] }
+
+        for oi in  order_items:
+            j['products'].append(oi.product.to_json())
+        j['phone'] = self.user_phone
+        j['number'] = self.number
+        j['total'] = self.total
+        j['email'] = self.user_email
+        j['date'] = localtime(self.date).strftime('%Y%m%d %H:%m')
+        # j['date'] = str(self.date)
+
+        return j
 
 class OrderItem(models.Model):
     id = models.AutoField(primary_key=True)
