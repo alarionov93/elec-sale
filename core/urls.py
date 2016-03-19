@@ -17,4 +17,5 @@ urlpatterns = [
     # orders
     # url(r'^orders/$', views.products_all, name='orders'),
     url(r'^orders/create/$', views.create_order, name='create_order'),
+    url(r'^feedback/$', views.create_feedback, name='create_feedback'),
 ]

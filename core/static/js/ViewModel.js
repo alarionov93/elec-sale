@@ -16,6 +16,8 @@ function ViewModel() {
     self.orderPopupShown = ko.observable(false);
     self.customerPhone = ko.observable('');
     self.customerEmail = ko.observable('');
+    self.firstShow = ko.observable(true);
+    self.fedbackText = ko.observable('');
 
     self.customerPhone.isValid = ko.computed(function() {
         var p = self.customerPhone();
@@ -27,6 +29,19 @@ function ViewModel() {
         return !!e && typeof e !== "undefined"
         && e.length !== 0 && e.includes("@");
     });
+    self.fedbackText.isValid = ko.computed(function() {
+        var e = self.customerEmail();
+        return !!e && typeof e !== "undefined"
+        && e.length !== 0;
+    });
+
+    // self.emailError = ko.computed(function() {
+    //     return !!self.customerEmail.isValid();
+    // });
+    // self.phoneError = ko.computed(function() {
+    //     return !!self.customerPhone.isValid();
+    // });
+
     self.cart.total = ko.computed(function() {
         var total = 0;
         if (self.cart() !== undefined && self.cart().length > 0) {
@@ -42,6 +57,25 @@ function ViewModel() {
         self.updateCart();
     }
 
+    self.cart.removeDouble = function() {
+        for (var i = 0; i < self.cart().length; i++) {
+            if (self.cart()[i].inCart() > 1) {
+                // self.cart.remove(self.cart()[i]);
+            }
+        }
+    };
+    self.hasDuplicates = function(array) {
+        var valuesSoFar = [];
+        for (var i = 0; i < array.length; ++i) {
+            var value = array[i];
+            if (valuesSoFar.indexOf(value) !== -1) {
+                return true;
+            }
+            valuesSoFar.push(value);
+        }
+        return false;
+    }
+
     // for (var i in fields) {console.log(fields[i]);} // think how to implement it
     self.getInitProducts = function () {
         $.get("/products/").then(function (resp) {
@@ -53,7 +87,9 @@ function ViewModel() {
             } else {
                 self.products.removeAll();
                 for (var i = 0; i < products.length; i++) {
-                    product = new Product(products[i].fields.id, products[i].fields.name, products[i].fields.cost, products[i].fields.in_stock, products[i].fields.thumbs, products[i].fields.images);
+                    product = new Product(products[i].fields.id, products[i].fields.name, 
+                                        products[i].fields.cost, products[i].fields.in_stock, 
+                                        products[i].fields.thumbs, products[i].fields.images);
                     self.products.push(product);
                 }
                 console.log(self.products());
@@ -73,7 +109,9 @@ function ViewModel() {
                 } else {
                     self.products.removeAll();
                     for (var i = 0; i < products.length; i++) {
-                        product = new Product(products[i].fields.id, products[i].fields.name, products[i].fields.cost, products[i].fields.in_stock, products[i].fields.thumbs, products[i].fields.images);
+                        product = new Product(products[i].fields.id, products[i].fields.name, 
+                                        products[i].fields.cost, products[i].fields.in_stock, 
+                                        products[i].fields.thumbs, products[i].fields.images);
                         self.products.push(product);
                     }
                     console.log(self.products());
@@ -92,7 +130,10 @@ function ViewModel() {
             } else {
                 self.cart.removeAll();
                 for (var i = 0; i < products.length; i++) {
-                        product = new Product(products[i].fields.id, products[i].fields.name, products[i].fields.cost, products[i].fields.in_stock, products[i].fields.thumbs, products[i].fields.images);
+                        product = new Product(products[i].fields.id, products[i].fields.name, 
+                                        products[i].fields.cost, products[i].fields.in_stock, 
+                                        products[i].fields.thumbs, products[i].fields.images,
+                                        true);
                         self.cart.push(product);
                     }
                 console.log(self.cart());
@@ -102,13 +143,15 @@ function ViewModel() {
 
     self.addToCart = function(productId) {
         return function() {
+            productId = parseInt(productId);
             $.get("/cart/add/"+encodeURIComponent(productId)).then(function (resp) {
                 console.log(resp.status);
                 if (resp.status == 0) {
                     for (var i = 0; i < self.products().length; i++) {
-                        if (self.products()[i].id == parseInt(productId)) {
+                        if (self.products()[i].id == productId) {
                             productToPush = self.products()[i];
                             self.cart.push(productToPush);
+                            self.products()[i].isInCart(true);
                         }
                     }
                 } else {
@@ -164,9 +207,7 @@ function ViewModel() {
 
     self.makeOrder = function() {
         return function() {
-            // $("#order-form").validate();
-            $("#inputEmail").removeClass("err-in-input");
-            $("#inputPhone").removeClass("err-in-input");
+            self.firstShow(false);
             if (self.customerPhone.isValid() && self.customerEmail.isValid()) {
                 var token = $('input[name*=csrf]').val();
                 $.post("/orders/create/", {
@@ -184,15 +225,26 @@ function ViewModel() {
                         self.hideOrderPopup();
                     }
                 }).always();
-            } else if (!self.customerEmail.isValid()) {
-                $("#inputEmail").addClass("err-in-input");
-            } else if (!self.customerPhone.isValid()) {
-                $("#inputPhone").addClass("err-in-input");
             }
         }
     };
 
-    $("#order-form").change(function () {
-
-    });
+    self.sendFeedback = function() {
+        return function() {
+            self.firstShow(false);
+            if (self.feedbackText.isValid() && self.customerEmail.isValid()) {
+                var token = $('input[name*=csrf]').val();
+                $.post("/feedback/", {
+                    text: self.fedbackText(),
+                    email: self.customerEmail(),
+                    csrfmiddlewaretoken: token}).then(function (resp) {
+                    console.log(resp.status);
+                    if (resp.status == 0) {
+                        console.log(resp);
+                        self.hideFeedbackPopup();
+                    }
+                }).always();
+            }
+        }
+    };
 }

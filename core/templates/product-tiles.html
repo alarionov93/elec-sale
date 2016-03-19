@@ -14,6 +14,10 @@
             <div class="project-name">
               <p><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></p>
             </div>
+          <!-- ko if: product.isInCart() -->
+
+            <div><i class="fa fa-check"></i> Добавлено!</div>
+          <!-- /ko -->
             <div class="text-blue"><i data-bind="click: $root.addToCart(product.id)" class="fa fa-4x fa-cart-arrow-down"></i></div>
         </div>
       </div>

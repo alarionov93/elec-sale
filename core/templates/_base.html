@@ -15,10 +15,10 @@
     <link rel="stylesheet" href="../static/css/bootstrap.min.css" type="text/css">
 
     <!-- Custom Fonts -->
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
-    <!--<link rel="stylesheet" href="../static/font-awesome/css/font-awesome.min.css" type="text/css">-->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!--<link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>-->
+    <link rel="stylesheet" href="../static/font-awesome/css/font-awesome.min.css" type="text/css">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">-->
 
     <!-- Plugin CSS -->
     <link rel="stylesheet" href="../static/css/animate.min.css" type="text/css">
@@ -51,35 +51,35 @@
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right" style="margin-right: 0 !important;">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="width: 90%;">
+                <ul class="nav navbar-nav navbar-right" style="">
                     <li>
                         <a class="page-scroll" href="{% url 'site_index' %}#about">О нас</a>
                     </li>
                     <li>
-                          <a class="page-scroll" href="{% url 'site_index' %}#services">Arduino</a>
+                          <a class="page-scroll" href="{% url 'site_index' %}#services">Почему мы</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="{% url 'site_index' %}#products">Raspberry</a>
+                        <a class="page-scroll" href="{% url 'site_index' %}#products">Продукция</a>
                     </li>
                     <li>
                         <a class="page-scroll" href="{% url 'site_index' %}#contact">Контакты</a>
                     </li>
-                    <li>
-                      <a href="{% url 'cart' %}" style="padding: 10px;">
-                      <!-- ko if: cart().length > 0 && !location.pathname.endsWith("cart/") -->
-                          <i class="fa fa-2x fa-cart-arrow-down cart-widget"></i>
-                          <b class="cart-widget" style="font-size: x-large;" data-bind="text: cart().length"></b>
-                          <!--<a href="">Go to cart</a>-->
-                          <!-- or make order here? -->
-                      <!-- /ko -->
-                      <!-- ko if: cart().length == 0 && !location.pathname.endsWith("cart/") -->
-                          <i class="fa fa-2x fa-cart-arrow-down text-muted"></i>
-                          <b class="text-muted" style="font-size: x-large;">0</b>
-                      <!-- /ko -->
-                      </a>
-                    </li>
                 </ul>
+            </div>
+            <div class="cart-link-block">
+                <a id="cart-link" class="cart-link" href="{% url 'cart' %}" style="padding: 10px;">
+                <!-- ko if: cart().length > 0 && !location.pathname.endsWith("cart/") -->
+                    <i class="fa fa-2x fa-cart-arrow-down cart-widget"></i>
+                    <b class="cart-widget" style="font-size: x-large;" data-bind="text: cart().length"></b>
+                    <!--<a href="">Go to cart</a>-->
+                    <!-- or make order here? -->
+                <!-- /ko -->
+                <!-- ko if: cart().length == 0 && !location.pathname.endsWith("cart/") -->
+                    <i class="fa fa-2x fa-cart-arrow-down text-muted"></i>
+                    <b class="text-muted" style="font-size: x-large;">0</b>
+                <!-- /ko -->
+                </a>
             </div>
             <!-- /.navbar-collapse -->
         </div>
@@ -100,12 +100,12 @@
                 <div class="col-lg-2 col-lg-offset-3 text-center">
                     <i class="fa fa-phone fa-3x wow bounceIn"></i>
                     <p>Наш телефон:</p>
-                    <p>123-456-6789</p>
+                    <p>898 2254 1153</p>
                 </div>
                 <div class="col-lg-2 text-center">
                     <i class="fa fa-envelope-o fa-3x wow bounceIn" data-wow-delay=".1s"></i>
                     <p>Задать вопрос касательно продукции:</p>
-                    <p><a href="">elec-all@yandex.ru</a></p>
+                    <p><a href="">shop@elec-all.ru</a></p>
                 </div>
                 <div class="col-lg-2 text-center">
                     <i class="fa fa-comment fa-3x wow bounceIn"></i>

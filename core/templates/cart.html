@@ -8,21 +8,25 @@
       <!-- ko if: cart().length > 0 -->
         <table class="table">
           <thead>
-          <tr></tr>
-            <th>#</th>
-            <th>Наименование</th>
-            <th>Цена</th>
-            <th>Удалить</th>
+            <tr>
+              <th>#</th>
+              <th>Наименование</th>
+              <th>Цена</th>
+              <th>Количество</th>
+              <th>Удалить</th>
+            </tr>
           </thead>
           <tbody data-bind="foreach: { data: cart(), as: 'product' }">
             <tr>
               <td data-bind="text: $index()+1"></td>
               <td data-bind="text: product.name"></td>
               <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
+              <td data-bind="text: product.count()"></td>
               <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart($index())"></i></td>
             </tr>
             <!-- ko if: $index() == $root.cart().length-1 -->
               <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -31,31 +35,34 @@
             <!-- /ko -->
           </tbody>
         </table>
-        <button type="button" class="btn btn-xl btn-danger" data-bind="click: $root.removeAllFromCart">
+        <a href="#" class="text-muted" data-bind="click: $root.removeAllFromCart">
           <i class="fa fa-remove"></i> Удалить все
-        </button>
-        <button type="button" class="btn btn-xl btn-success" data-bind="click: $root.showOrderPopup()">
+        </a>
+        <button style="float:right;" type="button" class="btn btn-xl btn-success" data-bind="click: $root.showOrderPopup()">
           <i class="fa fa-shopping-bag"></i> Заказать
         </button>
         <!-- ko if: orderPopupShown() -->
         <div class="background"></div>
         <div class="order-form">
-          <i class="fa fa-remove" data-bind="click: hideOrderPopup()" style="float: right; cursor: pointer;"></i>
+          <!--<i class="fa fa-remove" data-bind="click: hideOrderPopup()" style="float: right; cursor: pointer;"></i>-->
           <form id="order-form" class="form-horizontal" method="post" action="">
             {% csrf_token %}
             <div class="form-group">
-              <label for="inputEmail" class="col-sm-4 control-label"></label>
-              <div class="col-sm-10">
+              <label for="inputEmail" class="col-sm-4 control-label">Email</label>
+              <div class="col-sm-8">
                 <input type="email" id="inputEmail" class="form-control input-lg"
-                       data-bind="value: customerEmail" placeholder="Email" required>
+                       data-bind="css: { 'err-in-input': !customerEmail.isValid() && !firstShow() }, value: customerEmail" placeholder="Email" required>
               </div>
+              <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Это поле обязательно к заполнению!</p></div>
             </div>
             <div class="form-group">
-              <label for="inputPhone" class="col-sm-4 control-label"></label>
-              <div class="col-sm-10">
-                <input type="text" id="inputPhone" class="input-lg form-control bfh-phone"
-                       data-bind="value: customerPhone" data-format="+7 (ddd) ddd-dddd" placeholder="Телефон" required>
+              <label for="inputPhone" class="col-sm-4 control-label">Телефон</label>
+              <div class="col-sm-8">
+                <input type="text" id="inputPhone"
+                       data-bind="css: { 'err-in-input': !customerPhone.isValid() && !firstShow() }, value: customerPhone"
+                       class="input-lg form-control bfh-phone" placeholder="Телефон" required>
               </div>
+              <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !customerPhone.isValid() && !firstShow()">Это поле обязательно к заполнению!</p></div>
             </div>
             <!--<div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
@@ -79,7 +86,7 @@
       <!-- /ko -->
 
       <!-- ko if: cart().length == 0 && orderCreated() == false -->
-        <p>Вы еще не совершили покупок..</p>
+        <h2>Вы еще не совершали покупок..</h2>
         <p><a href="{% url 'site_index' %}#products" type="button" class="btn btn-primary">
           <i class="fa fa-shopping-bag"></i> Исправить
         </a> это ужасное положение вещей!</p>

@@ -1,5 +1,7 @@
+import random
 import uuid
 import json
+from collections import Counter
 
 from core.mails import mail_body
 from django.core.mail import send_mail
@@ -8,6 +10,8 @@ from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, render_to_response
 from core import models
 from django.template import Template, Context
+from django.utils import timezone
+from django.utils.timezone import localtime
 from elec_site import settings
 from core.json_serializer import JSONSerializer
 
@@ -78,8 +82,9 @@ def add_to_cart(request, product_id):
     prod_ids.append(product_id)
     s_cart = json.dumps(prod_ids)
     request.session['cart'] = s_cart
+    duplicates = [k for k,v in Counter(prod_ids).items() if v>1]
     # TODO: change status if something gone wrong
-    status = json.dumps({'status': status})
+    status = json.dumps({'status': status, 'duplicates': duplicates})
 
     return HttpResponse(status, content_type='application/json')
 
@@ -153,7 +158,7 @@ def create_order(request):
         ctx = {}
         if cart is not None and email and phone and total:
             try:
-                order_number = str(uuid.uuid1())
+                order_number = str(uuid.uuid1())[:8]
                 order = models.Order(number=order_number, user_phone=phone, user_email=email, total=total)
                 order_items_list = json.loads(cart)
                 order.save()
@@ -187,6 +192,38 @@ def create_order(request):
             ctx = {
                 'status': 1,
                 'error': 'cart OR email OR phone is None',
+            }
+    else:
+        ctx = {
+            'status': 2,
+            'error': 'only ajax POST allowed',
+        }
+
+    return HttpResponse(json.dumps(ctx), content_type='application/json')
+
+
+def create_feedback(request):
+    if request.is_ajax() and request.method == 'POST':
+        email = request.POST.get('email', None)
+        feedback = request.POST.get('feedback', None)
+        if email and feedback:
+            try:
+                new_feedback = None
+            # TODO: catch all possible exceptions here!!
+            except IntegrityError:
+                raise Http404("Sorry, value of key is duplicated!")
+            except:
+                raise Http404("Unhandled exception.")
+
+            ctx = {
+                'status': 0,
+                'error': None,
+                'success': 'Вы успешно отправили отзыв, спасибо!'
+            }
+        else:
+            ctx = {
+                'status': 1,
+                'error': 'email OR feedback is None',
             }
     else:
         ctx = {
