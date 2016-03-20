@@ -184,10 +184,15 @@ def create_order(request):
             body = mail_body(ctx)
             # TODO: send one more email: for me to know about new order
             # TODO: surround with try-except!!!!
-            status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, 'alarionov93@yandex.ru',
-                    ['alarionov93@yandex.ru'], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+            status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, settings.ADMIN_EMAIL,
+                    [email], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
                     auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
-            ctx.update({'mail_stat': status})
+
+            status2 = send_mail('Новый заказ!', body, settings.ADMIN_EMAIL,
+                    [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                    auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
+
+            ctx.update({'customer_stat': status, 'admin_stat': status2})
         else:
             ctx = {
                 'status': 1,
@@ -203,32 +208,44 @@ def create_order(request):
 
 
 def create_feedback(request):
-    if request.is_ajax() and request.method == 'POST':
+    voted = request.session.get('voted', None)
+    if request.is_ajax() and request.method == 'POST' and not voted:
         email = request.POST.get('email', None)
         feedback = request.POST.get('feedback', None)
         if email and feedback:
             try:
-                new_feedback = None
-            # TODO: catch all possible exceptions here!!
-            except IntegrityError:
-                raise Http404("Sorry, value of key is duplicated!")
+                body = "%s wrote feedback on \'elec-all.ru\': ``%s``" % (email, feedback)
+                status = send_mail('Feedback from elec-all.ru', body, settings.ADMIN_EMAIL,
+                    [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                    auth_password=settings.EMAIL_HOST_PASSWORD)
+                ctx = {'mail_stat': status}
             except:
                 raise Http404("Unhandled exception.")
 
-            ctx = {
+            ctx.update({
                 'status': 0,
                 'error': None,
                 'success': 'Вы успешно отправили отзыв, спасибо!'
-            }
+            })
+
+            request.session['voted'] = '1'
         else:
             ctx = {
                 'status': 1,
                 'error': 'email OR feedback is None',
+                'success': None
             }
+    elif voted:
+        ctx = {
+            'status': 3,
+            'success': 'Спасибо, вы уже написали отзыв!',
+            'error': 'voted already',
+        }
     else:
         ctx = {
             'status': 2,
             'error': 'only ajax POST allowed',
+            'success': None
         }
 
     return HttpResponse(json.dumps(ctx), content_type='application/json')

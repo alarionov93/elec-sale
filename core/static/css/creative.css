@@ -79,6 +79,10 @@ aside {
 .cart-widget {
   color: #FF5E23;
 }
+.disabled-link {
+  pointer-events: none;
+}
+.feedback-form,
 .order-form {
     width: 40%;
     top: 20%;

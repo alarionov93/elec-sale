@@ -44,6 +44,8 @@
         <!-- ko if: orderPopupShown() -->
         <div class="background"></div>
         <div class="order-form">
+          <p id="msg" class="text-info"></p>
+          <p id="err" class="text-danger"></p>
           <!--<i class="fa fa-remove" data-bind="click: hideOrderPopup()" style="float: right; cursor: pointer;"></i>-->
           <form id="order-form" class="form-horizontal" method="post" action="">
             {% csrf_token %}

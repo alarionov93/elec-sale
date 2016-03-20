@@ -132,6 +132,8 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'elec_site/media')
 
 EMAIL_HOST = 'smtp.yandex.ru'
 
+EMAIL_PROVIDER = 'yandex.ru'
+
 EMAIL_PORT = 465
 
 EMAIL_HOST_USER = 'alarionov93'
@@ -141,3 +143,5 @@ EMAIL_HOST_PASSWORD = 'transalpRD10E2001125'
 EMAIL_USE_SSL = True
 
 MAIL_FAIL_SILENT = False
+
+ADMIN_EMAIL = '%s@%s' % (EMAIL_HOST_USER, EMAIL_PROVIDER)

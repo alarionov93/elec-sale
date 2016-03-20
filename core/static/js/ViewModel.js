@@ -17,7 +17,9 @@ function ViewModel() {
     self.customerPhone = ko.observable('');
     self.customerEmail = ko.observable('');
     self.firstShow = ko.observable(true);
-    self.fedbackText = ko.observable('');
+    self.feedbackText = ko.observable('');
+    self.feedbackFormShown = ko.observable(false);
+    self.customerVoted = ko.observable(false);
 
     self.customerPhone.isValid = ko.computed(function() {
         var p = self.customerPhone();
@@ -29,10 +31,10 @@ function ViewModel() {
         return !!e && typeof e !== "undefined"
         && e.length !== 0 && e.includes("@");
     });
-    self.fedbackText.isValid = ko.computed(function() {
-        var e = self.customerEmail();
+    self.feedbackText.isValid = ko.computed(function() {
+        var e = self.feedbackText();
         return !!e && typeof e !== "undefined"
-        && e.length !== 0;
+        && e.length !== 0 && e.length < 500 && e.length > 2;
     });
 
     // self.emailError = ko.computed(function() {
@@ -184,13 +186,16 @@ function ViewModel() {
         }).always();
     };
 
-    self.showMsg = function(msg, blockId) {
-        $(blockId).text(msg);
-        $(blockId).show();
+    self.showFeedbackForm = function() {
+        return function () {
+            self.feedbackFormShown(true);
+        }
     };
 
-    self.hideMsg = function() {
-        $(blockId).hide();
+    self.hideFeedbackForm = function() {
+        return function() {
+            self.feedbackFormShown(false);
+        }
     }
 
     self.showOrderPopup = function() {
@@ -235,13 +240,21 @@ function ViewModel() {
             if (self.feedbackText.isValid() && self.customerEmail.isValid()) {
                 var token = $('input[name*=csrf]').val();
                 $.post("/feedback/", {
-                    text: self.fedbackText(),
+                    feedback: self.feedbackText(),
                     email: self.customerEmail(),
                     csrfmiddlewaretoken: token}).then(function (resp) {
                     console.log(resp.status);
                     if (resp.status == 0) {
                         console.log(resp);
-                        self.hideFeedbackPopup();
+                        $("#msg").text(resp.success);
+                        // self.hideFeedbackForm();
+                        self.customerEmail('');
+                        self.feedbackText('');
+                        self.customerVoted(true);
+                    } else if (resp.status == 3) {
+                        $("#msg").text(resp.success);
+                    } else {
+                        $("p#err").append("Ошибка сервера, повторите попытку позже.")
                     }
                 }).always();
             }
