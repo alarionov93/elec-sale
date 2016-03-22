@@ -17,20 +17,7 @@ function Product(id, name, cost, inStock, thumbs, images, isInCart, inCart) {
     	this.isInCart = ko.observable(false);
     }
 
-    this.count = function() {
-  //   	var product;
-  //   	var duplicated = [];
-  //   	var allValues = [];
-		// for (var i = 0; i < VM.cart().length; i++) {
-		// 	product = VM.cart()[i];
-		// 	if (allValues.indexOf(product) !== -1) {
-  //               duplicated.push(product);
-  //           }
-  //           allValues.push(product);
-  //       }
-
-  //       return 0;
-    };
+    this.count = ko.observable(1);
 }
 
 function Order(date, number, phone, email, products, total, msg) {

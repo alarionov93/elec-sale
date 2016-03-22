@@ -66,16 +66,52 @@ function ViewModel() {
             }
         }
     };
-    self.hasDuplicates = function(array) {
-        var valuesSoFar = [];
-        for (var i = 0; i < array.length; ++i) {
-            var value = array[i];
-            if (valuesSoFar.indexOf(value) !== -1) {
-                return true;
+
+    self.equals = function(obj, secObj) {
+        var stat;
+        for(var key in obj) {
+            // if(obj.hasOwnProperty(key) && secObj.hasOwnProperty(key)) {
+            //     if (typeof obj[key] == "object" && typeof secObj[key] == "object") {
+            //         stat = self.equals(obj[key], secObj[key]);
+            //     } else if (typeof obj[key] == "function" && typeof secObj[key] == "function") {
+            //         stat = (obj[key]() == secObj[key]());
+            //     } else if(secObj[key] != obj[key]) {
+            //         return false;
+            //     } else if(key == "count") {
+            //         continue;
+            //     }
+            // }
+            if (key == "id") {
+                if(obj.hasOwnProperty(key) && secObj.hasOwnProperty(key)) {
+                    if(secObj[key] != obj[key]) {
+                        return false;
+                    }
+                }
+            } else {
+                continue;
             }
-            valuesSoFar.push(value);
         }
-        return false;
+        // if(stat == false) {
+        //     return false;
+        // }
+
+        return true;
+    }
+    self.duplicates = ko.observableArray();
+    self.findDuplicates = function(array) {
+        var rem = [];
+        for(var i = 0; i < array.length-1; i++) {
+            for(var j = i; j < array.length; j++) {
+                if(i != j) {
+                    if(self.equals(array[i], array[j])) {
+                        array[i].count(array[i].count() + 1);
+                        // rem.push(j);
+                        self.cart.remove(array[j]);
+                    }
+                }
+            }
+        }
+        return rem;
     }
 
     // for (var i in fields) {console.log(fields[i]);} // think how to implement it
@@ -253,6 +289,9 @@ function ViewModel() {
                         self.customerVoted(true);
                     } else if (resp.status == 3) {
                         $("#msg").text(resp.success);
+                        self.customerEmail('');
+                        self.feedbackText('');
+                        self.customerVoted(true);
                     } else {
                         $("p#err").append("Ошибка сервера, повторите попытку позже.")
                     }

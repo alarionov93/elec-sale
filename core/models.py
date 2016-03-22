@@ -94,7 +94,6 @@ class Order(models.Model):
         j['total'] = self.total
         j['email'] = self.user_email
         j['date'] = localtime(self.date).strftime('%Y%m%d %H:%m')
-        # j['date'] = str(self.date)
 
         return j
 

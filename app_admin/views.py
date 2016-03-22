@@ -142,7 +142,7 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
         ctx = super(ProductUpdate, self).get_context_data()
         ctx['form'] = self.get_form()
         # ctx['form'].fields['images'] = self.object.get_images()
-        images_qs = self.object.get_images()
+        images_qs = self.object.images
         # img_urls = []
         # for i in images_qs:
         #     img_urls.append(i.image)

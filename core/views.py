@@ -82,9 +82,7 @@ def add_to_cart(request, product_id):
     prod_ids.append(product_id)
     s_cart = json.dumps(prod_ids)
     request.session['cart'] = s_cart
-    duplicates = [k for k,v in Counter(prod_ids).items() if v>1]
-    # TODO: change status if something gone wrong
-    status = json.dumps({'status': status, 'duplicates': duplicates})
+    status = json.dumps({'status': status})
 
     return HttpResponse(status, content_type='application/json')
 
@@ -184,15 +182,15 @@ def create_order(request):
             body = mail_body(ctx)
             # TODO: send one more email: for me to know about new order
             # TODO: surround with try-except!!!!
-            status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, settings.ADMIN_EMAIL,
-                    [email], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
-                    auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
+            # status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, settings.ADMIN_EMAIL,
+            #         [email], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+            #         auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
+            #
+            # status2 = send_mail('Новый заказ!', body, settings.ADMIN_EMAIL,
+            #         [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+            #         auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
 
-            status2 = send_mail('Новый заказ!', body, settings.ADMIN_EMAIL,
-                    [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
-                    auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
-
-            ctx.update({'customer_stat': status, 'admin_stat': status2})
+            # ctx.update({'customer_stat': status, 'admin_stat': status2})
         else:
             ctx = {
                 'status': 1,
@@ -215,10 +213,11 @@ def create_feedback(request):
         if email and feedback:
             try:
                 body = "%s wrote feedback on \'elec-all.ru\': ``%s``" % (email, feedback)
-                status = send_mail('Feedback from elec-all.ru', body, settings.ADMIN_EMAIL,
-                    [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
-                    auth_password=settings.EMAIL_HOST_PASSWORD)
-                ctx = {'mail_stat': status}
+                # status = send_mail('Feedback from elec-all.ru', body, settings.ADMIN_EMAIL,
+                #     [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                #     auth_password=settings.EMAIL_HOST_PASSWORD)
+                # ctx = {'mail_stat': status}
+                ctx = {}
             except:
                 raise Http404("Unhandled exception.")
 
