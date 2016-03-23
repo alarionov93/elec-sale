@@ -85,10 +85,11 @@ class Order(models.Model):
             return {}
 
         order_items = OrderItem.objects.filter(order_id=self.id)
-        j = { 'products': [] }
+        j = { 'items': [] }
 
-        for oi in  order_items:
-            j['products'].append(oi.product.to_json())
+        for oi in order_items:
+            j['items'].append(oi.to_json())
+
         j['phone'] = self.user_phone
         j['number'] = self.number
         j['total'] = self.total
@@ -103,3 +104,17 @@ class OrderItem(models.Model):
                                 unique=False, blank=False, null=False)
     order = models.ForeignKey('Order', to_field='id', db_column='order_id',
                                 unique=False, blank=False, null=False)
+    count = models.PositiveIntegerField(null=False, blank=False, unique=False, default=1)
+
+    @property
+    def price(self):
+        return self.product.cost * self.count
+
+
+    def to_json(self):
+        return {
+            'product': self.product.to_json(),
+            'count': self.count,
+            'price': self.price
+        }
+

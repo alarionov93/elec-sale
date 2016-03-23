@@ -71,62 +71,82 @@ def products_all(request):
 # Cart
 
 def add_to_cart(request, product_id):
-    prod_ids = []
+    # del request.session['cart']
+    prod_data = []
     cart = request.session.get('cart', None)
+    product_id = int(product_id)
     status = 0
+    found = 0
     if cart is not None:
         d_cart = json.loads(cart)
-        prod_ids = d_cart # this line is here for sure that the deal is with list
+        prod_data = d_cart # this line is here for sure that the deal is with list
     else:
         request.session['cart'] = ""
-    prod_ids.append(product_id)
-    s_cart = json.dumps(prod_ids)
+    for p in prod_data:
+        if p['id'] == product_id:
+            p['count'] = p['count'] + 1
+            found = 1
+    if not found:
+        prod_data.append({'id': product_id, 'count': 1})
+
+    s_cart = json.dumps(prod_data)
     request.session['cart'] = s_cart
-    status = json.dumps({'status': status})
+
+    # products = []
+    # for p in prod_data:
+    #         product = models.Product.objects.get(pk=p['id'])
+    #         setattr(product, 'count', p['count'])
+    #         products.append(product)
+    # serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images', 'count'])
+    # cart = serializer.serialize(queryset=products)
+    status = json.dumps({'status': status, 'cart': prod_data})
 
     return HttpResponse(status, content_type='application/json')
 
 
 def update_cart(request):
     cart = request.session.get('cart', None)
-    products = []
+    status = 0
+    d_cart = []
     if cart is not None:
         d_cart = json.loads(cart)
-        for val in d_cart:
-            p = models.Product.objects.get(pk=val)
-            products.append(p)
-    serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images'])
-    cart = serializer.serialize(queryset=products)
 
-    return HttpResponse(cart, content_type='application/json')
+    status = json.dumps({'status': status, 'cart': d_cart})
+
+    return HttpResponse(status, content_type='application/json')
 
 
 def cart_view(request):
 
     return render(request, 'cart.html')
 
+# TODO: define view to decrease/increase product count
 
-def delete_from_cart(request, cart_item):
-    prod_ids = []
+def delete_from_cart(request, product_id):
+    prod_data = []
     cart = request.session.get('cart', None)
+    product_id = int(product_id)
     status = 0
     if cart is not None:
         d_cart = json.loads(cart)
-        prod_ids = d_cart # TODO: is this line necessary? then we exactly know that type of prod_ids is list, not other!
+        prod_data = d_cart # TODO: is this line necessary? then we exactly know that type of prod_ids is list, not other!
         try:
-            item_to_delete = prod_ids.pop(int(cart_item))
+            deleted = None
+            for i,p in enumerate(prod_data):
+                if p['id'] == product_id:
+                    deleted = prod_data.pop(i)
+            if deleted is None:
+                status = 3
         except KeyError:
             status = 1
             raise Http404("Sorry, but index is out of range.")
         except:
             status = 2
             raise Http404("Unhandled exception.")
-        s_cart = json.dumps(prod_ids)
-        if len(prod_ids) == 0:
+        if len(prod_data) == 0:
             del request.session['cart']
         else:
-            request.session['cart'] = s_cart
-
+            request.session['cart'] = json.dumps(prod_data)
     else:
         request.session['cart'] = ""
     status = json.dumps({'status': status})
@@ -161,8 +181,8 @@ def create_order(request):
                 order_items_list = json.loads(cart)
                 order.save()
                 for val in order_items_list:
-                    prod = models.Product.objects.get(pk=val)
-                    item = models.OrderItem(product=prod, order=order)
+                    prod = models.Product.objects.get(pk=val['id'])
+                    item = models.OrderItem(product=prod, order=order, count=val['count'])
                     item.save()
                     order.orderitem_set.add(item)
                 order.save()
@@ -182,15 +202,15 @@ def create_order(request):
             body = mail_body(ctx)
             # TODO: send one more email: for me to know about new order
             # TODO: surround with try-except!!!!
-            # status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, settings.ADMIN_EMAIL,
-            #         [email], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
-            #         auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
-            #
-            # status2 = send_mail('Новый заказ!', body, settings.ADMIN_EMAIL,
-            #         [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
-            #         auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
+            status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, settings.ADMIN_EMAIL,
+                    [email], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                    auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
 
-            # ctx.update({'customer_stat': status, 'admin_stat': status2})
+            status2 = send_mail('Новый заказ!', body, settings.ADMIN_EMAIL,
+                    [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                    auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
+
+            ctx.update({'customer_stat': status, 'admin_stat': status2})
         else:
             ctx = {
                 'status': 1,
@@ -213,11 +233,10 @@ def create_feedback(request):
         if email and feedback:
             try:
                 body = "%s wrote feedback on \'elec-all.ru\': ``%s``" % (email, feedback)
-                # status = send_mail('Feedback from elec-all.ru', body, settings.ADMIN_EMAIL,
-                #     [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
-                #     auth_password=settings.EMAIL_HOST_PASSWORD)
-                # ctx = {'mail_stat': status}
-                ctx = {}
+                status = send_mail('Feedback from elec-all.ru', body, settings.ADMIN_EMAIL,
+                    [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                    auth_password=settings.EMAIL_HOST_PASSWORD)
+                ctx = {'mail_stat': status}
             except:
                 raise Http404("Unhandled exception.")
 

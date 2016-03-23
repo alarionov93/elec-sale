@@ -17,5 +17,4 @@
 
 VM = new ViewModel();
 ko.applyBindings(VM);
-VM.init();
-
+// VM.init();

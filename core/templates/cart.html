@@ -11,8 +11,9 @@
             <tr>
               <th>#</th>
               <th>Наименование</th>
-              <th>Цена</th>
               <th>Количество</th>
+              <th>Цена</th>
+              <th>Стоимость</th>
               <th>Удалить</th>
             </tr>
           </thead>
@@ -20,12 +21,14 @@
             <tr>
               <td data-bind="text: $index()+1"></td>
               <td data-bind="text: product.name"></td>
-              <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
               <td data-bind="text: product.count()"></td>
-              <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart($index())"></i></td>
+              <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
+              <td><b data-bind="text: product.price()"></b> <i class="fa fa-ruble"></i></td>
+              <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart(product.id)"></i></td>
             </tr>
             <!-- ko if: $index() == $root.cart().length-1 -->
               <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -102,14 +105,18 @@
             <tr>
               <th>#</th>
               <th>Наименование</th>
+              <th>Количество</th>
               <th>Цена</th>
+              <th>Стоимость</th>
             </tr>
           </thead>
-          <tbody data-bind="foreach: { data: order().products, as: 'product' }">
+          <tbody data-bind="foreach: { data: order().items, as: 'oi' }">
             <tr>
               <td data-bind="text: $index()+1"></td>
-              <td data-bind="text: product.name"></td>
-              <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
+              <td data-bind="text: oi.product.name"></td>
+              <td data-bind="text: oi.count"></td>
+              <td><b data-bind="text: oi.product.cost"></b> <i class="fa fa-ruble"></i></td>
+              <td><b data-bind="text: oi.price"></b> <i class="fa fa-ruble"></i></td>
             </tr>
           </tbody>
         </table>

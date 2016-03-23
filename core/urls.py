@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^cart/update/$', views.update_cart, name='update_cart'),
     url(r'^cart/remove_all/$', views.remove_all, name='remove_all_from_cart'),
     url(r'^cart/add/(?P<product_id>[0-9]+)/$', views.add_to_cart, name='add_to_cart'),
-    url(r'^cart/delete/(?P<cart_item>[0-9]+)/$', views.delete_from_cart, name='delete_from_cart'),
+    url(r'^cart/delete/(?P<product_id>[0-9]+)/$', views.delete_from_cart, name='delete_from_cart'),
 
     # orders
     # url(r'^orders/$', views.products_all, name='orders'),

@@ -1,7 +1,7 @@
 /**
  * Created by sanya on 17.03.16.
  */
-
+;
 
 function ViewModel() {
     var self = this;
@@ -9,6 +9,9 @@ function ViewModel() {
     self.removed = ko.observable(false);
     self.msg = ko.observable("");
     self.products = ko.observableArray();
+    self.products.loaded = ko.observable(false);
+    self.shuffledProducts = ko.observableArray();
+    self.productsToShow = ko.observableArray();
     self.cart = ko.observableArray();
     self.products.expanded = ko.observable(false);
     self.order = ko.observable();
@@ -49,38 +52,36 @@ function ViewModel() {
         if (self.cart() !== undefined && self.cart().length > 0) {
             var products = self.cart();
             for (var i = 0; i < products.length; i++) {
-                total += parseInt(products[i].cost);
+                total += parseInt(products[i].price());
             }
         }
         return total;
     });
-    self.init = function () {
-        self.getInitProducts();
-        self.updateCart();
-    }
 
-    self.cart.removeDouble = function() {
-        for (var i = 0; i < self.cart().length; i++) {
-            if (self.cart()[i].inCart() > 1) {
-                // self.cart.remove(self.cart()[i]);
+    $.get("/products/all/").then(function (resp) {
+        products = JSON.parse(resp.products);
+        console.log(products);
+        images_dir = resp.images_dir;
+        if(resp.length == 0) {
+            // TODO: handle it?
+        } else {
+            self.products.removeAll();
+            for (var i = 0; i < products.length; i++) {
+                product = new Product(products[i].fields.id, products[i].fields.name, 
+                                products[i].fields.cost, products[i].fields.in_stock, 
+                                products[i].fields.thumbs, products[i].fields.images);
+                self.products.push(product);
             }
+            console.log(self.products());
+            self.products.loaded(true);
+            self.showInitProducts();
+            self.updateCart();
         }
-    };
+    }).always();
 
     self.equals = function(obj, secObj) {
         var stat;
         for(var key in obj) {
-            // if(obj.hasOwnProperty(key) && secObj.hasOwnProperty(key)) {
-            //     if (typeof obj[key] == "object" && typeof secObj[key] == "object") {
-            //         stat = self.equals(obj[key], secObj[key]);
-            //     } else if (typeof obj[key] == "function" && typeof secObj[key] == "function") {
-            //         stat = (obj[key]() == secObj[key]());
-            //     } else if(secObj[key] != obj[key]) {
-            //         return false;
-            //     } else if(key == "count") {
-            //         continue;
-            //     }
-            // }
             if (key == "id") {
                 if(obj.hasOwnProperty(key) && secObj.hasOwnProperty(key)) {
                     if(secObj[key] != obj[key]) {
@@ -91,106 +92,91 @@ function ViewModel() {
                 continue;
             }
         }
-        // if(stat == false) {
-        //     return false;
-        // }
 
         return true;
     }
-    self.duplicates = ko.observableArray();
-    self.findDuplicates = function(array) {
-        var rem = [];
-        for(var i = 0; i < array.length-1; i++) {
-            for(var j = i; j < array.length; j++) {
-                if(i != j) {
-                    if(self.equals(array[i], array[j])) {
-                        array[i].count(array[i].count() + 1);
-                        // rem.push(j);
-                        self.cart.remove(array[j]);
-                    }
-                }
-            }
-        }
-        return rem;
+
+    // self.duplicates = ko.observableArray();
+    // self.findDuplicates = function(array) {
+    //     var rem = [];
+    //     for(var i = 0; i < array.length-1; i++) {
+    //         for(var j = i; j < array.length; j++) {
+    //             if(i != j) {
+    //                 if(self.equals(array[i], array[j])) {
+    //                     array[i].count(array[i].count() + 1);
+    //                     self.cart.remove(array[j]);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return rem;
+    // }
+
+    self.shuffle = function(arr) {
+        var newLength = 2;
+        // for (var i = 0; i < newLength; i++) {
+        //     var j = Math.floor(Math.random() * (i + 1));
+        //     var temp = array[i];
+        //     array[i] = array[j];
+        //     array[j] = temp;
+        // }
+        for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
+        self.shuffledProducts(arr.slice(0,3));
     }
 
     // for (var i in fields) {console.log(fields[i]);} // think how to implement it
-    self.getInitProducts = function () {
-        $.get("/products/").then(function (resp) {
-            products = JSON.parse(resp.products);
-            console.log(products);
-            images_dir = resp.images_dir;
-            if(resp.length == 0) {
-                // TODO: handle it?
-            } else {
-                self.products.removeAll();
-                for (var i = 0; i < products.length; i++) {
-                    product = new Product(products[i].fields.id, products[i].fields.name, 
-                                        products[i].fields.cost, products[i].fields.in_stock, 
-                                        products[i].fields.thumbs, products[i].fields.images);
-                    self.products.push(product);
-                }
-                console.log(self.products());
-            }
-        }).always();
+    self.showInitProducts = function () {
+        self.shuffle(self.products());
+        self.productsToShow(self.shuffledProducts());
         self.products.expanded(false);
-    }
-
-    self.getAllProducts = function() {
-        return function() {
-            $.get("/products/all/").then(function (resp) {
-                products = JSON.parse(resp.products);
-                console.log(products);
-                images_dir = resp.images_dir;
-                if(resp.length == 0) {
-                    // TODO: handle it?
-                } else {
-                    self.products.removeAll();
-                    for (var i = 0; i < products.length; i++) {
-                        product = new Product(products[i].fields.id, products[i].fields.name, 
-                                        products[i].fields.cost, products[i].fields.in_stock, 
-                                        products[i].fields.thumbs, products[i].fields.images);
-                        self.products.push(product);
-                    }
-                    console.log(self.products());
-                }
-            }).always();
-            self.products.expanded(true);
-        }
-    }
-
-    self.updateCart = function() {
-        $.get("/cart/update/").then(function (resp) {
-            console.log(resp);
-            var products = resp;
-            if(resp.length == 0) { // TODO: change error handling logic here!
-                // TODO: handle it?
-            } else {
-                self.cart.removeAll();
-                for (var i = 0; i < products.length; i++) {
-                        product = new Product(products[i].fields.id, products[i].fields.name, 
-                                        products[i].fields.cost, products[i].fields.in_stock, 
-                                        products[i].fields.thumbs, products[i].fields.images,
-                                        true);
-                        self.cart.push(product);
-                    }
-                console.log(self.cart());
-            }
-        }).always();
     };
 
-    self.addToCart = function(productId) {
-        return function() {
-            productId = parseInt(productId);
-            $.get("/cart/add/"+encodeURIComponent(productId)).then(function (resp) {
+    self.showAllProducts = function() {
+        self.productsToShow(self.products());
+        self.products.expanded(true);
+    };
+
+    self.products.find = function (id) {
+        for (var i = 0; i < self.products().length; i++) {
+            if (parseInt(id) == self.products()[i].id) {
+                product = self.products()[i];
+            }
+        }
+
+        return product;
+    };
+
+    self.cart.find = function (id) {
+        for (var i = 0; i < self.cart().length; i++) {
+            if (parseInt(id) == self.cart()[i].id) {
+                product = self.cart()[i];
+            }
+        }
+
+        return product;
+    };
+
+    self.updateCart = function() {
+        if(self.products.loaded() == true && self.products().length > 0) {
+            $.get("/cart/update/").then(function (resp) {
                 console.log(resp.status);
                 if (resp.status == 0) {
-                    for (var i = 0; i < self.products().length; i++) {
-                        if (self.products()[i].id == productId) {
-                            productToPush = self.products()[i];
-                            self.cart.push(productToPush);
-                            self.products()[i].isInCart(true);
-                        }
+                    self.cart.removeAll();
+                    for (var i = 0; i < resp.cart.length; i++) {
+                        p = self.products.find(resp.cart[i].id); //find element in products
+                        p.isInCart(true);
+                        p.count(resp.cart[i].count); //++ its count
+                        self.cart.push(p);
+                        // if(resp.cart[i].count > 1) {
+                        //     p = self.cart.find(resp.cart[i].id); //find element in cart
+                        //     p.isInCart(true);
+                        //     p.count(resp.cart[i].count); //++ its count
+                        // } else {
+                        //     p = self.products.find(resp.cart[i].id); //find element in products
+                        //     p.isInCart(true);
+                        //     p.count(resp.cart[i].count);
+                        //     self.cart.push(p);
+                        // }
                     }
                 } else {
                     console.log("Error:" + resp.status);                    
@@ -199,14 +185,45 @@ function ViewModel() {
         }
     };
 
-    self.deleteFromCart = function(itemId) {
+    self.addToCart = function(productId) {
         return function() {
-            $.get("/cart/delete/"+encodeURIComponent(itemId)).then(function (resp) {
+            productId = parseInt(productId);
+            $.get("/cart/add/"+encodeURIComponent(productId)).then(function (resp) {
+                console.log(resp.status);
+                if (resp.status == 0) {
+                    self.cart.removeAll();
+                    for (var i = 0; i < resp.cart.length; i++) {
+                        p = self.products.find(resp.cart[i].id); //find element in products
+                        p.isInCart(true);
+                        p.count(resp.cart[i].count); //++ its count
+                        self.cart.push(p);
+                        // if(resp.cart[i].count > 1) {
+                        //     p = self.cart.find(resp.cart[i].id); //find element in cart
+                        //     p.isInCart(true);
+                        //     p.count(resp.cart[i].count); //++ its count
+                        // } else {
+                        //     p = self.products.find(resp.cart[i].id); //find element in products
+                        //     p.isInCart(true);
+                        //     p.count(resp.cart[i].count);
+                        //     self.cart.push(p);
+                        // }
+                    }
+                } else {
+                    console.log("Error:" + resp.status);                    
+                }
+            }).always();
+        }
+    };
+
+    self.deleteFromCart = function(productId) {
+        return function() {
+            $.get("/cart/delete/"+encodeURIComponent(productId)).then(function (resp) {
                 // delete from productsInCart, if server deletes from session
                 console.log(resp.status);
                 if (resp.status == 0) {
-                    console.log(self.cart());
-                    var deleted = self.cart.splice(itemId, 1);
+                    var productToDelete = self.cart.find(productId);
+                    // var deleted = self.cart.splice(productId, 1);
+                    var deleted = self.cart.remove(productToDelete);
                     console.log(deleted);
                 }
             }).always();
@@ -246,6 +263,7 @@ function ViewModel() {
         }
     }
 
+    // TODO: make waited after make order click!!
     self.makeOrder = function() {
         return function() {
             self.firstShow(false);
@@ -299,4 +317,6 @@ function ViewModel() {
             }
         }
     };
+
+    // self.updateCart();
 }

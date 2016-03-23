@@ -30,14 +30,18 @@ def mail_body(ctx):
                         <thead>
                           <tr>
                             <th>Наименование</th>
+                            <th>Количество</th>
                             <th>Цена</th>
+                            <th>Стоимость</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {% for product in order.products %}
+                          {% for oi in order.items %}
                           <tr>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.cost }} Р<i class="fa fa-ruble"></i></td>
+                            <td>{{ oi.product.name }}</td>
+                            <td>{{ oi.count }}</td>
+                            <td>{{ oi.product.cost }} Р</td>
+                            <td>{{ oi.price }} Р</td>
                           </tr>
                           {% endfor %}
                         </tbody>

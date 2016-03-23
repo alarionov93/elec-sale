@@ -128,10 +128,10 @@
         <div class="container">
           <div class="text-center row">
               <!-- ko if: products.expanded() -->
-              <a href="" data-bind="click: getInitProducts, text: 'Свернуть'" class="btn btn-primary btn-xl"></a>
+              <a href="#" data-bind="click: showInitProducts, text: 'Свернуть'" class="btn btn-primary btn-xl"></a>
               <!-- /ko -->
               <!-- ko if: !products.expanded() -->
-              <a href="" data-bind="click: getAllProducts(), text: 'Вся продукция'" class="btn btn-primary btn-xl"></a>
+              <a href="#" data-bind="click: showAllProducts, text: 'Вся продукция'" class="btn btn-primary btn-xl"></a>
               <!-- /ko -->
           </div>
         </div>
