@@ -104,7 +104,7 @@ class ProductCreate(CreateView, AdminContext, WithHeader):
     template_name = 'products/create.html'
 
     model = models.Product
-    fields = ['name', 'cost', ]
+    fields = ['name', 'cost', 'count', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -135,17 +135,14 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'cost', 'in_stock', ]
+    fields = ['name', 'cost', 'count', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
         ctx = super(ProductUpdate, self).get_context_data()
         ctx['form'] = self.get_form()
-        # ctx['form'].fields['images'] = self.object.get_images()
-        images_qs = self.object.images
-        # img_urls = []
-        # for i in images_qs:
-        #     img_urls.append(i.image)
+
+        images_qs = self.object.thumbs
         ctx['images'] = images_qs
 
         return ctx
@@ -180,7 +177,7 @@ class ProductView(DetailView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'cost', ]
+    fields = ['name', 'cost', 'count', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -277,6 +274,51 @@ class ImageCreate(CreateView, AdminContext, WithHeader):
 
 
         return super(ImageCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        return '../%s/' % self.object.id
+
+
+class ImageRemove(CreateView, AdminContext, WithHeader):
+    page_header = 'Добавить изображение'
+    template_name = 'images/create.html'
+
+    model = models.ProductImage
+    fields = ['product', 'image' ]
+    context_object_name = 'image'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ImageRemove, self).get_context_data()
+        ctx['form'] = self.get_form()
+
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        # image = self.request.FILES.get('image')
+        # name = image.name
+        # splitted = name.split('.')
+        # ext_idx = len(splitted) - 1
+        # ext = splitted[ext_idx]
+        # image.name = str(uuid.uuid4()) + '.' + str(ext)
+        #
+        # product_id = self.request.POST.get('product')
+
+        return super(ImageRemove, self).post(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        form = super(ImageRemove, self).get_form()
+
+        return form
+
+    def form_invalid(self, form):
+
+        return super(ImageRemove, self).form_invalid(form)
+
+    def form_valid(self, form):
+        image = form.save(commit=False)
+        full_link = image.image.file.name
+
+        return super(ImageRemove, self).form_valid(form)
 
     def get_success_url(self):
         return '../%s/' % self.object.id

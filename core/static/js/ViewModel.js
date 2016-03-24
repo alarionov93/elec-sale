@@ -279,7 +279,7 @@ function ViewModel() {
                         console.log(resp);
                         self.cart.removeAll();
                         var order = resp.order;
-                        self.order(new Order(order.date, order.number, order.phone, order.email, order.products, order.total, resp.success));
+                        self.order(new Order(order.date, order.number, order.phone, order.email, order.items, order.total, resp.success));
                         self.orderCreated(true);
                         self.hideOrderPopup();
                     }

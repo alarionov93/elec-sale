@@ -14,5 +14,6 @@ urlpatterns = [
 
     # images
     url(r'^images/add/$', views.ImageCreate.as_view(), name='images_add'),
+    url(r'^images/remove/(?P<pk>[0-9]+)/$', views.ImageCreate.as_view(), name='image_remove'),
     # url(r'^products/(?P<pk>[0-9]+)/images/add/$', views.ProductImageCreate.as_view(), name='image_add'),
 ]

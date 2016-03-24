@@ -37,7 +37,7 @@ function Order(date, number, phone, email, products, total, msg) {
     this.number = number;
     this.phone = phone;
     this.email = email;
-    this.products = products;
+    this.items = products;
     this.total = total;
     this.success = msg;
 }

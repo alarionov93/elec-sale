@@ -68,6 +68,19 @@ def products_all(request):
     else:
         raise Http404('Not found')
 
+
+def product(request, product_id):
+    product_id = int(product_id)
+    product = models.Product.objects.get(pk=product_id)
+    ctx = {
+        'product': product,
+        'images_dir': settings.MEDIA_URL,
+        'thumbs': product.thumb_urls,
+        'images': product.images,
+    }
+
+    return render(request, 'product-view.html', ctx)
+
 # Cart
 
 def add_to_cart(request, product_id):

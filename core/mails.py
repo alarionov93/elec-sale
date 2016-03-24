@@ -23,30 +23,32 @@ def mail_body(ctx):
                       <title>Order</title>
                     </head>
                     <body>
+                      <p>Добрый день! Только что вы оставили заказ на сайте elec-all.ru.</p>
                       <p>Дата заказа: {{ order.date }}</p>
                       <p>Номер заказа: {{ order.number }}</p>
                       Позиции:
                       <table class="table">
                         <thead>
                           <tr>
-                            <th>Наименование</th>
-                            <th>Количество</th>
-                            <th>Цена</th>
-                            <th>Стоимость</th>
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">Наименование</th>
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">Количество</th>
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">Цена</th>
+                            <th style="padding: 8px; border-bottom: 2px solid #ddd;">Стоимость</th>
                           </tr>
                         </thead>
                         <tbody>
                           {% for oi in order.items %}
                           <tr>
-                            <td>{{ oi.product.name }}</td>
-                            <td>{{ oi.count }}</td>
-                            <td>{{ oi.product.cost }} Р</td>
-                            <td>{{ oi.price }} Р</td>
+                            <td style="padding: 8px; border-top: 1px solid #ddd;">{{ oi.product.name }}</td>
+                            <td style="padding: 8px; border-top: 1px solid #ddd;">{{ oi.count }}</td>
+                            <td style="padding: 8px; border-top: 1px solid #ddd;">{{ oi.product.cost }}</td>
+                            <td style="padding: 8px; border-top: 1px solid #ddd;">{{ oi.price }}</td>
                           </tr>
                           {% endfor %}
                         </tbody>
                       </table>
-                      <p>Сумма заказа: {{ order.total }} Р<i class="fa fa-ruble"></i></p>
+                      <p style="color: #0080EB;">Сумма заказа: {{ order.total }} Р<i class="fa fa-ruble"></i></p>
+                      <p>Спасибо за заказ, мы вам перезвоним!</p>
                     </body>
                     </html>''')
     c = Context(ctx)

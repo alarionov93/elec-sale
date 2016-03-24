@@ -13,19 +13,32 @@ class Product(models.Model):
     name = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
                             verbose_name='Наименование')
     cost = models.PositiveIntegerField(null=False, blank=False, verbose_name='Цена')
-    in_stock = models.IntegerField(null=False, blank=False, unique=False, default=IN_STOCK)
+    count = models.IntegerField(null=False, blank=False, unique=False, default=1)
+
+    @property
+    def in_stock(self):
+        return self.count > 0
 
     def __str__(self):
         return self.name
 
     @property
-    def thumbs(self):
+    def thumb_urls(self):
         qs = ProductImage.objects.filter(product=self.id)
         urls = []
         for i in qs:
             urls.append(i.thumb.url)
 
         return urls
+
+    @property
+    def thumbs(self):
+        qs = ProductImage.objects.filter(product=self.id)
+        thumbs = []
+        for i in qs:
+            thumbs.append({'id': i.id,'url': i.thumb.url, 'large': i.image.url})
+
+        return thumbs
 
     @property
     def images(self):
@@ -55,6 +68,9 @@ class ProductImage(models.Model):
     date = models.DateTimeField(default=timezone.now)
     image = models.ImageField(upload_to='uploads/')
     thumb = models.ImageField(blank=True, null=True, default='')
+
+    def get_large_image(self):
+        return self.image.url
 
     def __str__(self):
         return self.thumb.url
