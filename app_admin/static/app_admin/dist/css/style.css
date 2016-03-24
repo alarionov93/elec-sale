@@ -1,0 +1,16 @@
+.img-container {
+    padding: 0 !important;
+    border: 1px solid #fff;
+}
+.img-container:hover {
+    border: 1px solid #ccc;
+}
+.add-image-icon {
+    width: 100%;
+    margin-top: 20px;
+    position: relative;
+    border: 1px solid #fff;
+}
+.add-image-icon:hover {
+    border: 1px solid #ccc;
+}

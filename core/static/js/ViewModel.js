@@ -14,6 +14,8 @@ function ViewModel() {
     self.productsToShow = ko.observableArray();
     self.cart = ko.observableArray();
     self.products.expanded = ko.observable(false);
+    self.productToView = ko.observable(null);
+    self.isViewing = ko.observable(false);
     self.order = ko.observable();
     self.orderCreated = ko.observable(false);
     self.orderPopupShown = ko.observable(false);
@@ -69,7 +71,7 @@ function ViewModel() {
             for (var i = 0; i < products.length; i++) {
                 product = new Product(products[i].fields.id, products[i].fields.name, 
                                 products[i].fields.cost, products[i].fields.in_stock, 
-                                products[i].fields.thumbs, products[i].fields.images);
+                                products[i].fields.left_in_stock, products[i].fields.thumbs, products[i].fields.images);
                 self.products.push(product);
             }
             console.log(self.products());
@@ -185,34 +187,23 @@ function ViewModel() {
         }
     };
 
-    self.addToCart = function(productId) {
-        return function() {
-            productId = parseInt(productId);
-            $.get("/cart/add/"+encodeURIComponent(productId)).then(function (resp) {
-                console.log(resp.status);
-                if (resp.status == 0) {
-                    self.cart.removeAll();
-                    for (var i = 0; i < resp.cart.length; i++) {
-                        p = self.products.find(resp.cart[i].id); //find element in products
-                        p.isInCart(true);
-                        p.count(resp.cart[i].count); //++ its count
-                        self.cart.push(p);
-                        // if(resp.cart[i].count > 1) {
-                        //     p = self.cart.find(resp.cart[i].id); //find element in cart
-                        //     p.isInCart(true);
-                        //     p.count(resp.cart[i].count); //++ its count
-                        // } else {
-                        //     p = self.products.find(resp.cart[i].id); //find element in products
-                        //     p.isInCart(true);
-                        //     p.count(resp.cart[i].count);
-                        //     self.cart.push(p);
-                        // }
-                    }
-                } else {
-                    console.log("Error:" + resp.status);                    
+    self.addToCart = function(product, evt, vm) {
+        evt.stopPropagation();
+        productId = parseInt(product.id);
+        $.get("/cart/add/"+encodeURIComponent(productId)).then(function (resp) {
+            console.log(resp.status);
+            if (resp.status == 0) {
+                self.cart.removeAll();
+                for (var i = 0; i < resp.cart.length; i++) {
+                    p = self.products.find(resp.cart[i].id); //find element in products
+                    p.isInCart(true);
+                    p.count(resp.cart[i].count); //++ its count
+                    self.cart.push(p);
                 }
-            }).always();
-        }
+            } else {
+                console.log("Error:" + resp.status);                    
+            }
+        }).always();
     };
 
     self.deleteFromCart = function(productId) {
@@ -318,5 +309,20 @@ function ViewModel() {
         }
     };
 
-    // self.updateCart();
+    self.getProduct = function(productId, evt, vm) {
+        return function () {
+            var product = self.products.find(productId);
+            self.productToView(product);
+        }
+    };
+
+    // self.viewingOn = function() {
+    //     self.isViewing(true);
+    // };
+
+    self.viewingOff = function() {
+        return function () {
+            self.productToView(null);
+        }
+    };
 }

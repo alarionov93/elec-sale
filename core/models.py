@@ -13,11 +13,11 @@ class Product(models.Model):
     name = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
                             verbose_name='Наименование')
     cost = models.PositiveIntegerField(null=False, blank=False, verbose_name='Цена')
-    count = models.IntegerField(null=False, blank=False, unique=False, default=1)
+    left_in_stock = models.IntegerField(null=False, blank=False, unique=False, default=1)
 
     @property
     def in_stock(self):
-        return self.count > 0
+        return self.left_in_stock > 0
 
     def __str__(self):
         return self.name

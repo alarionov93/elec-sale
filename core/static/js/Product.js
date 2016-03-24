@@ -3,12 +3,13 @@
  */
 ;
 
-function Product(id, name, cost, inStock, thumbs, images, isInCart, inCart) {
+function Product(id, name, cost, inStock, leftInStock, thumbs, images, isInCart, count) {
 	var self = this;
 	this.id = id;
     this.name = name;
     this.cost = cost;
-    this.inStock = inStock;
+    this.inStock = inStock; // boolean field!!
+    this.leftInStock = leftInStock;
     this.thumbs = thumbs;
     this.images = images;
 
@@ -18,8 +19,8 @@ function Product(id, name, cost, inStock, thumbs, images, isInCart, inCart) {
     	this.isInCart = ko.observable(false);
     }
 
-    this.count = ko.observable(inCart);
-    this.pureCount = inCart;
+    this.count = ko.observable(count);
+    this.pureCount = count;
     this.count.subscribe(function(value) {
 	    this.pureCount = value;
 	});

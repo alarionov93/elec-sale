@@ -182,14 +182,6 @@ class ProductView(DetailView, AdminContext, WithHeader):
 
     def get_context_data(self, **kwargs):
         ctx = super(ProductView, self).get_context_data()
-        # ctx['form'] = self.get_form()
-        # ctx['form'].fields['images'] = self.object.get_images()
-        # images = self.object.get_images()
-        # img_urls = []
-        # for i in images:
-        #     img_urls.append(i.thumbnail.url)
-        # form.fields['images'] = forms.ImageField()
-        # form.fields['images'].initial = images
         ctx['images'] = self.object.get_images()
 
         return ctx

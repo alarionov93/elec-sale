@@ -4,9 +4,11 @@
 {% load staticfiles %}
 <div data-bind="foreach: { data: productsToShow, as : 'product' }">
   <div class="col-lg-4 col-sm-6 no-padding">
-    <a href="{% url 'product' %}" class="portfolio-box">
+    <a data-bind="click: $root.getProduct(product.id)" class="portfolio-box">
       <!--ko foreach: { data: product.thumbs, as: 'thumb' } -->
-        <img data-bind="attr: { src: thumb }" class="img-responsive" alt="">
+        <!-- ko if: $index() == 0 -->
+          <img data-bind="attr: { src: thumb.url }" class="img-responsive" alt="">
+        <!-- /ko -->
       <!-- /ko -->
       <div class="portfolio-box-caption">
         <div class="portfolio-box-caption-content">
@@ -14,11 +16,11 @@
             <div class="project-name">
               <p><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></p>
             </div>
-          <!-- ko if: product.isInCart() -->
 
-            <div><i class="fa fa-check"></i> Добавлено <b data-bind="text: product.count()"></b></div>
-          <!-- /ko -->
-            <div class="text-blue"><i data-bind="click: $root.addToCart(product.id)" class="fa fa-4x fa-cart-arrow-down"></i></div>
+            <!-- ko if: product.isInCart() -->
+              <div><i class="fa fa-check"></i> Добавлено <b data-bind="text: product.count()"></b></div>
+            <!-- /ko -->
+            <div class="text-blue"><i data-bind="click: $root.addToCart.bind(product)" class="fa fa-4x fa-cart-arrow-down"></i></div>
         </div>
       </div>
     </a>

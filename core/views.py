@@ -19,8 +19,8 @@ from core.json_serializer import JSONSerializer
 
 def index(request):
     limit_val = 3
-    products = models.Product.objects.filter(in_stock=1).order_by('?')[:limit_val]
-    products_all_count = models.Product.objects.filter(in_stock=1).count()
+    products = models.Product.objects.filter(left_in_stock__gte=1).order_by('?')[:limit_val]
+    products_all_count = models.Product.objects.filter(left_in_stock__gte=1).count()
     ctx = {
         'products': products,
         'images_dir': settings.MEDIA_URL,
@@ -34,10 +34,10 @@ def index(request):
 def products(request):
     if request.is_ajax():
         limit_val = 3
-        products = models.Product.objects.filter(in_stock=1).order_by('?')[:limit_val]
-        products_all_count = models.Product.objects.filter(in_stock=1).count()
+        products = models.Product.objects.filter(left_in_stock__gte=1).order_by('?')[:limit_val]
+        products_all_count = models.Product.objects.filter(left_in_stock__gte=1).count()
 
-        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images'])
+        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'left_in_stock', 'in_stock', 'thumbs', 'images'])
         json_model = serializer.serialize(queryset=products)
 
         ctx = {
@@ -54,9 +54,9 @@ def products(request):
 
 def products_all(request):
     if request.is_ajax():
-        products = models.Product.objects.filter(in_stock=1).all()
+        products = models.Product.objects.all()
 
-        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images'])
+        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'left_in_stock', 'in_stock', 'thumbs', 'images'])
         json_model = serializer.serialize(queryset=products)
 
         ctx = {

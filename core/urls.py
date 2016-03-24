@@ -6,7 +6,7 @@ urlpatterns = [
     url(r'^$', views.index, name='site_index'),
     url(r'^products/$', views.products, name='products'),
     url(r'^products/all/$', views.products_all, name='products_all'),
-    url(r'^product/$', views.product, name='product'),
+    url(r'^products/(?P<product_id>[0-9]+)/$', views.product, name='product'),
 
     # shopping cart
     url(r'^cart/$', views.cart_view, name='cart'),

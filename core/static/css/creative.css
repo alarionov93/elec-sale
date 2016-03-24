@@ -126,6 +126,14 @@ aside {
 .cart-link::hover {
   color: rgba(34, 34, 34, 0.05) !important;
 }
+.product-view {
+    position: fixed;
+    top: 15%;
+    left: 0;
+    width: 100%;
+    z-index: 80 !important;
+    padding: 50px;
+}
 .navbar-default {
   background-color: white;
   border-color: rgba(34, 34, 34, 0.05);
