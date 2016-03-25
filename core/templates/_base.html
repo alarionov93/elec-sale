@@ -37,6 +37,10 @@
 
 <body id="page-top">
     <!-- TODO: fix navigation links!!-->
+    <div class="background" style="z-index: 130 !important;" data-bind="visible: waiter.status()"></div>
+    <div id="waiter" data-bind="visible: waiter.status()" style="display: none;">
+      <i class="fa fa-refresh fa-spin fa-3x"></i>
+    </div>
     <nav id="mainNav" class="navbar navbar-default navbar-fixed-top" style="z-index: 15 !important;">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->

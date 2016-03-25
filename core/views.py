@@ -198,6 +198,9 @@ def create_order(request):
                     item = models.OrderItem(product=prod, order=order, count=val['count'])
                     item.save()
                     order.orderitem_set.add(item)
+                    decrease = prod.left_in_stock - int(val['count'])
+                    prod.left_in_stock = decrease
+                    prod.save()
                 order.save()
                 del request.session['cart']
             # TODO: catch all possible exceptions here!!
@@ -239,6 +242,7 @@ def create_order(request):
 
 
 def create_feedback(request):
+    # del request.session['voted']
     voted = request.session.get('voted', None)
     if request.is_ajax() and request.method == 'POST' and not voted:
         email = request.POST.get('email', None)

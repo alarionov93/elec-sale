@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<section id="cart">
+<section id="cart" style="padding-bottom: 0 !important;">
   <div class="container">
     <div class="row">
       <!-- ko if: cart().length > 0 -->
@@ -15,6 +15,7 @@
               <th>Цена</th>
               <th>Стоимость</th>
               <th>Удалить</th>
+              <th>Примечания</th>
             </tr>
           </thead>
           <tbody data-bind="foreach: { data: cart(), as: 'product' }">
@@ -25,9 +26,16 @@
               <td><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></td>
               <td><b data-bind="text: product.price()"></b> <i class="fa fa-ruble"></i></td>
               <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart(product.id)"></i></td>
+              <!-- ko if: product.count() > product.leftInStock -->
+                <td class="text-danger"><b>!</b>  На складе меньше товара, чем нужно</td>
+              <!-- /ko -->
+              <!-- ko ifnot: product.count() > product.leftInStock -->
+                <td></td>
+              <!-- /ko -->
             </tr>
             <!-- ko if: $index() == $root.cart().length-1 -->
               <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -44,6 +52,11 @@
         <button style="float:right;" type="button" class="btn btn-xl btn-success" data-bind="click: $root.showOrderPopup()">
           <i class="fa fa-shopping-bag"></i> Заказать
         </button>
+        <div class="row" style="margin-top: 50px;">
+          <div class="col-sm-2" style="float:right;text-align: right;">
+            <a href="{% url 'site_index' %}#products">Продолжить покупки</a>
+          </div>
+        </div>
         <!-- ko if: orderPopupShown() -->
         <div class="background"></div>
         <div class="order-form">

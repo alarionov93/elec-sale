@@ -5,6 +5,8 @@
 
 function ViewModel() {
     var self = this;
+    self.waiter = new Waiter();
+    self.waiter.show();
     self.added = ko.observable(false);
     self.removed = ko.observable(false);
     self.msg = ko.observable("");
@@ -79,7 +81,7 @@ function ViewModel() {
             self.showInitProducts();
             self.updateCart();
         }
-    }).always();
+    }).always(self.waiter.hide);
 
     self.equals = function(obj, secObj) {
         var stat;
@@ -160,6 +162,7 @@ function ViewModel() {
 
     self.updateCart = function() {
         if(self.products.loaded() == true && self.products().length > 0) {
+            self.waiter.show();
             $.get("/cart/update/").then(function (resp) {
                 console.log(resp.status);
                 if (resp.status == 0) {
@@ -183,11 +186,13 @@ function ViewModel() {
                 } else {
                     console.log("Error:" + resp.status);                    
                 }
-            }).always();
+            }).always(self.waiter.hide);
         }
     };
-
-    self.addToCart = function(product, evt, vm) {
+    // addToCart should be invoked with .bind() !!
+    self.addToCart = function(vm, evt, product) {
+        self.waiter.show();
+        var product = this;
         evt.stopPropagation();
         productId = parseInt(product.id);
         $.get("/cart/add/"+encodeURIComponent(productId)).then(function (resp) {
@@ -199,35 +204,38 @@ function ViewModel() {
                     p.isInCart(true);
                     p.count(resp.cart[i].count); //++ its count
                     self.cart.push(p);
+                    // p.leftInStock--;
                 }
             } else {
                 console.log("Error:" + resp.status);                    
             }
-        }).always();
+        }).always(self.waiter.hide);
     };
 
     self.deleteFromCart = function(productId) {
         return function() {
+            self.waiter.show();
             $.get("/cart/delete/"+encodeURIComponent(productId)).then(function (resp) {
                 // delete from productsInCart, if server deletes from session
                 console.log(resp.status);
                 if (resp.status == 0) {
                     var productToDelete = self.cart.find(productId);
-                    // var deleted = self.cart.splice(productId, 1);
                     var deleted = self.cart.remove(productToDelete);
+                    // productToDelete.leftInStock++;
                     console.log(deleted);
                 }
-            }).always();
+            }).always(self.waiter.hide);
         }
     };
 
     self.removeAllFromCart = function() {
+        self.waiter.show();
         $.get("/cart/remove_all/").then(function (resp) {
             console.log(resp.status);
             if (resp.status == 0) {
                 self.cart.removeAll();
             }
-        }).always();
+        }).always(self.waiter.hide);
     };
 
     self.showFeedbackForm = function() {
@@ -259,6 +267,7 @@ function ViewModel() {
         return function() {
             self.firstShow(false);
             if (self.customerPhone.isValid() && self.customerEmail.isValid()) {
+                self.waiter.show();
                 var token = $('input[name*=csrf]').val();
                 $.post("/orders/create/", {
                     phone: self.customerPhone(),
@@ -274,7 +283,7 @@ function ViewModel() {
                         self.orderCreated(true);
                         self.hideOrderPopup();
                     }
-                }).always();
+                }).always(self.waiter.hide);
             }
         }
     };
@@ -283,6 +292,7 @@ function ViewModel() {
         return function() {
             self.firstShow(false);
             if (self.feedbackText.isValid() && self.customerEmail.isValid()) {
+                self.waiter.show();
                 var token = $('input[name*=csrf]').val();
                 $.post("/feedback/", {
                     feedback: self.feedbackText(),
@@ -304,7 +314,7 @@ function ViewModel() {
                     } else {
                         $("p#err").append("Ошибка сервера, повторите попытку позже.")
                     }
-                }).always();
+                }).always(self.waiter.hide);
             }
         }
     };

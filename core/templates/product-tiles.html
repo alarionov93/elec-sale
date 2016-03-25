@@ -16,11 +16,14 @@
             <div class="project-name">
               <p><b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></p>
             </div>
-
+            <!-- ko if: product.inStock == false -->
+              <p>Нет в наличии!</p>
+            <!-- /ko -->
             <!-- ko if: product.isInCart() -->
               <div><i class="fa fa-check"></i> Добавлено <b data-bind="text: product.count()"></b></div>
             <!-- /ko -->
-            <div class="text-blue"><i data-bind="click: $root.addToCart.bind(product)" class="fa fa-4x fa-cart-arrow-down"></i></div>
+            <!-- addToCart should be invoked with .bind() !! -->
+            <div class="text-blue"><i data-bind="click: $root.addToCart.bind($data)" class="fa fa-4x fa-cart-arrow-down"></i></div>
         </div>
       </div>
     </a>

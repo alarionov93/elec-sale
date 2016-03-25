@@ -127,12 +127,25 @@ aside {
   color: rgba(34, 34, 34, 0.05) !important;
 }
 .product-view {
+    border-top: 5px solid #FF5E23;
+    border-bottom: 5px solid #FF5E23;
     position: fixed;
     top: 15%;
     left: 0;
     width: 100%;
     z-index: 80 !important;
     padding: 50px;
+}
+#waiter {
+    padding: 8px;
+    position: fixed;
+    z-index: 150;
+    top: 40%;
+    left: 48%;
+    color: #00314A;
+    background: rgba(0, 52, 105, 0.45);
+    border-radius: 7px;
+    border: 1px solid rgba(0, 47, 105, 0.28);
 }
 .navbar-default {
   background-color: white;

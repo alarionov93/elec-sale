@@ -104,7 +104,7 @@ class ProductCreate(CreateView, AdminContext, WithHeader):
     template_name = 'products/create.html'
 
     model = models.Product
-    fields = ['name', 'cost', 'count', ]
+    fields = ['name', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -135,7 +135,7 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'cost', 'count', ]
+    fields = ['name', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -177,7 +177,7 @@ class ProductView(DetailView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'cost', 'count', ]
+    fields = ['name', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):

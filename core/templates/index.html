@@ -146,20 +146,16 @@
             <i class="fa fa-2x fa-remove text-orange" style="float: right;" data-bind="click: $root.viewingOff()"></i>
           </div>
           <div class="row">
-            <div class="col-lg-8" style="float: right;">
-              <p data-bind="text: product.name"></p>
-            </div>
-          </div>
-          <div class="row">
             <div class="col-lg-4 col-sm-4">
-              Photos:
               <!--ko foreach: { data: product.thumbs, as: 'thumb' } -->
                 <!-- ko if: $index() == 0 -->
+                  <!-- TODO: make simple viewer for large images -->
                   <a data-bind="attr: { href: thumb.large }"><img data-bind="attr: { src: thumb.url }" class="img-thumbnail" alt=""></a>
                 <!-- /ko -->
               <!-- /ko -->
             </div>
             <div class="col-lg-8 col-sm-8">
+              <p>Наименование: <b data-bind="text: product.name"></b></p>
               <p>Цена: <b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></p>
               <!-- ko if: product.inStock -->
                 <p>На складе: <b data-bind="text: product.leftInStock"></b> шт.</p>
@@ -167,11 +163,12 @@
               <!-- ko ifnot: product.inStock -->
                 <p><i class="fa fa-remove"></i> Нет в наличии</p>
               <!-- /ko-->
+              <p><i class="fa fa-4x fa-cart-arrow-down" data-bind="click: $root.addToCart.bind($data.data)"></i> </p>
               <!-- ko if: product.isInCart() == true -->
                 <p>В корзине: <b data-bind="text: product.count()"></b> шт.</p>
               <!-- /ko -->
               <!-- ko if: product.isInCart() == false -->
-                <p><i class="fa fa-4x fa-cart-arrow-down" data-bind="click: $root.addToCart.bind(product)"></i> </p>
+
               <!-- /ko -->
               <!--<p><b data-bind="text: product.desc"></b> </p>-->
             </div>

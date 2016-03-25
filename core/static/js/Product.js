@@ -42,3 +42,14 @@ function Order(date, number, phone, email, products, total, msg) {
     this.total = total;
     this.success = msg;
 }
+
+function Waiter() {
+    var self = this;
+    self.status = ko.observable(false);
+    self.show = function () {
+        self.status(true);
+    };
+    self.hide = function () {
+        self.status(false);
+    };
+}
