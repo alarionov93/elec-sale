@@ -16,7 +16,7 @@
             <input type="email" id="inputEmail" class="form-control input-lg"
                    data-bind="css: { 'err-in-input': !customerEmail.isValid() && !firstShow() }, value: customerEmail" placeholder="Email" required>
           </div>
-          <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Это поле обязательно к заполнению!</p></div>
+          <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
         </div>
         <div class="form-group">
           <label for="inputFeedback" class="col-sm-4 control-label">Отзыв</label>
@@ -25,7 +25,7 @@
                    data-bind="css: { 'err-in-input': !feedbackText.isValid() && !firstShow() }, value: feedbackText"
                    class="input-lg form-control bfh-phone" placeholder="Отзыв" required></textarea>
           </div>
-          <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !feedbackText.isValid() && !firstShow()">Это поле обязательно к заполнению!</p></div>
+          <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !feedbackText.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
         </div>
         <div class="form-group">
           <div class="col-sm-offset-3 col-sm-9">
@@ -37,14 +37,53 @@
       </form>
     <!-- /ko -->
     </div>
-    <!-- /ko -->
+  <!-- /ko -->
+
+  <!-- ko if: purchaseFormShown() == true -->
+    <div class="background"></div>
+    <div class="purchase-form">
+      <p id="msg" class="text-info"></p>
+      <p id="err" class="text-danger"></p>
+      <i class="fa fa-remove" data-bind="click: hidePurchaseForm()" style="float: right; cursor: pointer;"></i>
+      <div data-bind="visible: !showResponse()">
+        <form id="purchase-form" class="form-horizontal" method="post" action="" style="margin-top: 25px;">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="inputEmail" class="col-sm-4 control-label">Email</label>
+            <div class="col-sm-8">
+              <input type="email" id="inputEmail" class="form-control input-lg"
+                     data-bind="css: { 'err-in-input': !customerEmail.isValid() && !firstShow() }, value: customerEmail" placeholder="Email" required>
+            </div>
+            <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
+          </div>
+          <div class="form-group">
+            <label for="inputFeedback" class="col-sm-4 control-label">Меня интересует:</label>
+            <div class="col-sm-8">
+              <textarea id="inputFeedback"
+                     data-bind="css: { 'err-in-input': !positionNeeded.isValid() && !firstShow() }, value: positionNeeded"
+                     class="input-lg form-control bfh-phone" placeholder="Описание интересующего вас товара" required></textarea>
+            </div>
+            <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !feedbackText.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+              <button type="submit" class="btn btn-xl btn-success" data-bind="click: sendPurchase()">
+                <i class="fa fa-check-circle"></i> Отправить
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  <!-- /ko -->
+
     <header>
         <div class="header-content" style="margin-top: 25px;">
             <div class="header-content-inner">
                 <h1>Твоё любимое место покупки электроники</h1>
                 <hr>
                 <p>Мы решили сделать электронику в Перми доступней! Если вы начинающий специалист, и для вашего проекта требуются Arduino или Raspberry и модули к ним,
-                  значит вы не случайно оказалить на этой странице. Тут вы можете приобрести электронику для совего хобби, или же работы по ценам, выгодно отличающимся от конкурентов. Вся представленная продукция в наличии. </p>
+                  значит вы не случайно оказалить на этой странице. Тут вы можете приобрести электронику для совего хобби, или же работы по ценам, выгодно отличающимся от конкурентов. </p>
                 <a href="#products" class="btn btn-primary btn-xl page-scroll">Ознакомиться</a>
             </div>
         </div>
@@ -185,7 +224,7 @@
                 <p class="text-faded">
                   Оставьте заявку на интересующий вас товар, и мы свяжемся с вами и уточним возможность и сроки поставки!
                 </p>
-                <a href="#products" class="btn btn-default btn-xl page-scroll wow tada">Оставить заявку</a>
+                <a href="#" data-bind="click: showPurchaseForm()" class="btn btn-default btn-xl wow tada">Оставить заявку</a>
             </div>
         </div>
     </aside>

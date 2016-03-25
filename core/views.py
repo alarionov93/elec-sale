@@ -284,3 +284,39 @@ def create_feedback(request):
         }
 
     return HttpResponse(json.dumps(ctx), content_type='application/json')
+
+
+def create_purchase(request):
+    if request.is_ajax() and request.method == 'POST':
+        email = request.POST.get('email', None)
+        purchase = request.POST.get('purchase', None)
+        ip = request.environ.get('REMOTE_ADDR', None)
+        if email and purchase:
+            try:
+                body = "%s wrote purchase on \'elec-all.ru\'. IP is: [%s] He wants to know about: ``%s``" % (email, ip, purchase)
+                status = send_mail('Purchase on elec-all.ru', body, settings.ADMIN_EMAIL,
+                    [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
+                    auth_password=settings.EMAIL_HOST_PASSWORD)
+                ctx = {'mail_stat': status}
+            except:
+                raise Http404("Unhandled exception.")
+
+            ctx.update({
+                'status': 0,
+                'error': None,
+                'success': 'Спасибо за интерес к нашей компании! Мы свяжемся с вами, как только получим информацию о интересующей вас позиции!'
+            })
+        else:
+            ctx = {
+                'status': 1,
+                'error': 'email OR feedback is None',
+                'success': None
+            }
+    else:
+        ctx = {
+            'status': 2,
+            'error': 'only ajax POST allowed',
+            'success': None
+        }
+
+    return HttpResponse(json.dumps(ctx), content_type='application/json')

@@ -27,6 +27,9 @@ function ViewModel() {
     self.feedbackText = ko.observable('');
     self.feedbackFormShown = ko.observable(false);
     self.customerVoted = ko.observable(false);
+    self.purchaseFormShown = ko.observable(false);
+    self.positionNeeded = ko.observable('');
+    self.showResponse = ko.observable(false);
 
     self.customerPhone.isValid = ko.computed(function() {
         var p = self.customerPhone();
@@ -43,13 +46,11 @@ function ViewModel() {
         return !!e && typeof e !== "undefined"
         && e.length !== 0 && e.length < 500 && e.length > 2;
     });
-
-    // self.emailError = ko.computed(function() {
-    //     return !!self.customerEmail.isValid();
-    // });
-    // self.phoneError = ko.computed(function() {
-    //     return !!self.customerPhone.isValid();
-    // });
+    self.positionNeeded.isValid = ko.computed(function() {
+        var e = self.positionNeeded();
+        return !!e && typeof e !== "undefined"
+        && e.length !== 0 && e.length < 500 && e.length > 2;
+    });
 
     self.cart.total = ko.computed(function() {
         var total = 0;
@@ -240,6 +241,7 @@ function ViewModel() {
 
     self.showFeedbackForm = function() {
         return function () {
+            self.firstShow(true);
             self.feedbackFormShown(true);
         }
     };
@@ -247,20 +249,36 @@ function ViewModel() {
     self.hideFeedbackForm = function() {
         return function() {
             self.feedbackFormShown(false);
+            self.showResponse(false);
         }
-    }
+    };
+
+    self.showPurchaseForm = function() {
+        return function () {
+            self.firstShow(true);
+            self.purchaseFormShown(true);
+        }
+    };
+
+    self.hidePurchaseForm = function() {
+        return function() {
+            self.purchaseFormShown(false);
+            self.showResponse(false);
+        }
+    };
 
     self.showOrderPopup = function() {
         return function() {
+            self.firstShow(true);
             self.orderPopupShown(true);
         }
-    }
+    };
 
     self.hideOrderPopup = function() {
         return function() {
             self.orderPopupShown(false);
         }
-    }
+    };
 
     // TODO: make waited after make order click!!
     self.makeOrder = function() {
@@ -274,6 +292,7 @@ function ViewModel() {
                     email: self.customerEmail(),
                     total: self.cart.total(),
                     csrfmiddlewaretoken: token}).then(function (resp) {
+                    // self.showResponse(true); // for form to be invisible, to show only msg or err!!
                     console.log(resp.status);
                     if (resp.status == 0) {
                         console.log(resp);
@@ -298,6 +317,7 @@ function ViewModel() {
                     feedback: self.feedbackText(),
                     email: self.customerEmail(),
                     csrfmiddlewaretoken: token}).then(function (resp) {
+                    self.showResponse(true); // for form to be invisible, to show only msg or err!!
                     console.log(resp.status);
                     if (resp.status == 0) {
                         console.log(resp);
@@ -319,16 +339,38 @@ function ViewModel() {
         }
     };
 
+    self.sendPurchase = function() {
+        return function() {
+            self.firstShow(false);
+            if (self.positionNeeded.isValid() && self.customerEmail.isValid()) {
+                self.waiter.show();
+                var token = $('input[name*=csrf]').val();
+                $.post("/purchase/", {
+                    purchase: self.positionNeeded(),
+                    email: self.customerEmail(),
+                    csrfmiddlewaretoken: token}).then(function (resp) {
+                    self.showResponse(true); // for form to be invisible, to show only msg or err!!
+                    console.log(resp.status);
+                    if (resp.status == 0) {
+                        console.log(resp);
+                        $("#msg").text(resp.success);
+                        // self.hideFeedbackForm();
+                        self.customerEmail('');
+                        self.positionNeeded('');
+                    } else {
+                        $("p#err").append("Ошибка сервера, повторите попытку позже.")
+                    }
+                }).always(self.waiter.hide);
+            }
+        }
+    };
+
     self.getProduct = function(productId, evt, vm) {
         return function () {
             var product = self.products.find(productId);
             self.productToView(product);
         }
     };
-
-    // self.viewingOn = function() {
-    //     self.isViewing(true);
-    // };
 
     self.viewingOff = function() {
         return function () {

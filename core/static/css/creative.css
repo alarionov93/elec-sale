@@ -82,6 +82,7 @@ aside {
 .disabled-link {
   pointer-events: none;
 }
+.purchase-form,
 .feedback-form,
 .order-form {
     width: 40%;
