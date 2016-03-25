@@ -111,7 +111,7 @@ class Order(models.Model):
         j['number'] = self.number
         j['total'] = self.total
         j['email'] = self.user_email
-        j['date'] = localtime(self.date).strftime('%d.%m.%Y %H:%m')
+        j['date'] = localtime(timezone.now()).strftime('%d.%m.%Y %H:%m')
 
         return j
 
