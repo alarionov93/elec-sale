@@ -4,13 +4,12 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django import forms
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import ContextMixin, View
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView, DeleteView
 from core import models
-from bootstrap3.templatetags.bootstrap3 import bootstrap_field
 from app_admin.forms import ProductForm
 from PIL import Image
 import uuid
@@ -104,7 +103,7 @@ class ProductCreate(CreateView, AdminContext, WithHeader):
     template_name = 'products/create.html'
 
     model = models.Product
-    fields = ['name', 'cost', 'left_in_stock', ]
+    fields = ['name', 'desc', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -135,7 +134,7 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'cost', 'left_in_stock', ]
+    fields = ['name', 'desc', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -177,7 +176,7 @@ class ProductView(DetailView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'cost', 'left_in_stock', ]
+    fields = ['name', 'desc', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -199,8 +198,40 @@ class ProductView(DetailView, AdminContext, WithHeader):
         return '../%s/' % self.object.id
 
 
-class ProductRemove():
-    pass
+class ProductRemove(DeleteView, AdminContext, WithHeader):
+    page_header = 'Удалить изображение'
+    template_name = 'images/remove.html'
+    img_link = ''
+    thumb_link = ''
+
+    model = models.ProductImage
+
+    def get_queryset(self):
+        qs = super(ProductRemove, self).get_queryset()
+        try:
+            image = qs.get(pk=self.kwargs['pk'])
+            self.img_link = image.image
+            self.thumb_link = image.thumb
+        except self.model.DoesNoExists:
+            raise Http404('pk %s does not exists' % self.kwargs['pk'])
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProductRemove, self).get_context_data()
+        ctx['thumb'] = str(self.thumb_link.url)
+
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        qs = super(ProductRemove, self).post(request, *args, **kwargs)
+        os.remove(str(self.img_link.file))
+        os.remove(str(self.thumb_link.file))
+
+        return qs
+
+    def get_success_url(self):
+        return reverse('products_list')
 
 
 class ImageCreate(CreateView, AdminContext, WithHeader):
@@ -271,46 +302,37 @@ class ImageCreate(CreateView, AdminContext, WithHeader):
         return '../%s/' % self.object.id
 
 
-class ImageRemove(CreateView, AdminContext, WithHeader):
-    page_header = 'Добавить изображение'
-    template_name = 'images/create.html'
+class ImageRemove(DeleteView, AdminContext, WithHeader):
+    page_header = 'Удалить изображение'
+    template_name = 'images/remove.html'
+    img_link = ''
+    thumb_link = ''
 
     model = models.ProductImage
-    fields = ['product', 'image' ]
-    context_object_name = 'image'
+
+    def get_queryset(self):
+        qs = super(ImageRemove, self).get_queryset()
+        try:
+            image = qs.get(pk=self.kwargs['pk'])
+            self.img_link = image.image
+            self.thumb_link = image.thumb
+        except self.model.DoesNoExists:
+            raise Http404('pk %s does not exists' % self.kwargs['pk'])
+
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super(ImageRemove, self).get_context_data()
-        ctx['form'] = self.get_form()
+        ctx['thumb'] = str(self.thumb_link.url)
 
         return ctx
 
     def post(self, request, *args, **kwargs):
-        # image = self.request.FILES.get('image')
-        # name = image.name
-        # splitted = name.split('.')
-        # ext_idx = len(splitted) - 1
-        # ext = splitted[ext_idx]
-        # image.name = str(uuid.uuid4()) + '.' + str(ext)
-        #
-        # product_id = self.request.POST.get('product')
+        qs = super(ImageRemove, self).post(request, *args, **kwargs)
+        os.remove(str(self.img_link.file))
+        os.remove(str(self.thumb_link.file))
 
-        return super(ImageRemove, self).post(request, *args, **kwargs)
-
-    def get_form(self, form_class=None):
-        form = super(ImageRemove, self).get_form()
-
-        return form
-
-    def form_invalid(self, form):
-
-        return super(ImageRemove, self).form_invalid(form)
-
-    def form_valid(self, form):
-        image = form.save(commit=False)
-        full_link = image.image.file.name
-
-        return super(ImageRemove, self).form_valid(form)
+        return qs
 
     def get_success_url(self):
-        return '../%s/' % self.object.id
+        return reverse('products_list')

@@ -13,8 +13,11 @@ class Product(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
                             verbose_name='Наименование')
+    desc = models.TextField(null=False, blank=False, max_length=500, default='', unique=False,
+                            verbose_name='Описание')
     cost = models.PositiveIntegerField(null=False, blank=False, verbose_name='Цена')
-    left_in_stock = models.IntegerField(null=False, blank=False, unique=False, default=1)
+    left_in_stock = models.IntegerField(null=False, blank=False, unique=False,
+                                        default=1, verbose_name='Осталось на складе')
 
     @property
     def in_stock(self):
@@ -51,9 +54,13 @@ class Product(models.Model):
         return urls
 
     def to_json(self):
+        if not self.id:
+            return {}
+
         return {
             'id':self.id,
             'name': self.name,
+            'desc': self.desc,
             'cost': self.cost,
         }
 

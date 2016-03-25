@@ -156,6 +156,7 @@
             </div>
             <div class="col-lg-8 col-sm-8">
               <p>Наименование: <b data-bind="text: product.name"></b></p>
+              <p>Описание: <b data-bind="text: product.desc"></b> </p>
               <p>Цена: <b data-bind="text: product.cost"></b> <i class="fa fa-ruble"></i></p>
               <!-- ko if: product.inStock -->
                 <p>На складе: <b data-bind="text: product.leftInStock"></b> шт.</p>
@@ -170,7 +171,6 @@
               <!-- ko if: product.isInCart() == false -->
 
               <!-- /ko -->
-              <!--<p><b data-bind="text: product.desc"></b> </p>-->
             </div>
           </div>
         </div>

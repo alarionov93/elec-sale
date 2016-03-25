@@ -6,6 +6,7 @@
     <tr>
       <th>#</th>
       <th>Название</th>
+      <th>Описание</th>
       <th>Цена, <i class="fa fa-rouble"></i></th>
       <th>Количество</th>
       <th>Наличие</th>
@@ -17,6 +18,7 @@
       <tr>
         <td>{{ product.id }}</td>
         <td>{{ product.name }}</td>
+        <td>{{ product.desc }}</td>
         <td>{{ product.cost }}</td>
         <td>{{ product.left_in_stock }}</td>
         {% if product.in_stock %}

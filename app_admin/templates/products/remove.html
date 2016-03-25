@@ -1,0 +1,13 @@
+{% extends '_base_admin.html' %}
+{% load bootstrap3 %}
+
+{% block content %}
+  <form action="" method="post" class="form">
+    {% csrf_token %}
+    {% buttons %}
+        <button type="submit" class="btn btn-danger">
+            {% bootstrap_icon "remove" %} Удалить
+        </button>
+    {% endbuttons %}
+  </form>
+{% endblock %}
