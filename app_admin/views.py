@@ -299,7 +299,7 @@ class ImageCreate(CreateView, AdminContext, WithHeader):
         return super(ImageCreate, self).form_valid(form)
 
     def get_success_url(self):
-        return '../%s/' % self.object.id
+        return reverse('images_add')
 
 
 class ImageRemove(DeleteView, AdminContext, WithHeader):
