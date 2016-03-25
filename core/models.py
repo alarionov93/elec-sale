@@ -3,6 +3,7 @@ from django.utils import timezone
 from core.json_serializer import JSONSerializer
 from django.utils.datetime_safe import strftime
 from django.utils.timezone import localtime
+from elec_site import settings
 
 THUMB_SIZE = 200
 IN_STOCK = 1
@@ -110,7 +111,7 @@ class Order(models.Model):
         j['number'] = self.number
         j['total'] = self.total
         j['email'] = self.user_email
-        j['date'] = self.date.strftime('%d.%m.%Y %H:%m')
+        j['date'] = localtime(self.date).strftime('%d.%m.%Y %H:%m')
 
         return j
 
