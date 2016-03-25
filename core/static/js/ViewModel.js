@@ -72,9 +72,14 @@ function ViewModel() {
         } else {
             self.products.removeAll();
             for (var i = 0; i < products.length; i++) {
-                product = new Product(products[i].fields.id, products[i].fields.name, 
-                                products[i].fields.cost, products[i].fields.in_stock, 
-                                products[i].fields.left_in_stock, products[i].fields.thumbs, products[i].fields.images);
+                product = new Product(products[i].fields.id,
+                                products[i].fields.name,
+                                products[i].fields.desc,
+                                products[i].fields.cost,
+                                products[i].fields.in_stock, 
+                                products[i].fields.left_in_stock,
+                                products[i].fields.thumbs,
+                                products[i].fields.images);
                 self.products.push(product);
             }
             console.log(self.products());

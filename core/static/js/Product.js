@@ -3,10 +3,11 @@
  */
 ;
 
-function Product(id, name, cost, inStock, leftInStock, thumbs, images, isInCart, count) {
+function Product(id, name, desc, cost, inStock, leftInStock, thumbs, images, isInCart, count) {
 	var self = this;
 	this.id = id;
     this.name = name;
+    this.desc = desc;
     this.cost = cost;
     this.inStock = inStock; // boolean field!!
     this.leftInStock = leftInStock;

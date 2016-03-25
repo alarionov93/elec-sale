@@ -4,9 +4,9 @@
     <!-- ko if: feedbackFormShown() == true -->
     <div class="background"></div>
     <div class="feedback-form">
+      <i class="fa fa-remove" data-bind="click: hideFeedbackForm()" style="float: right; cursor: pointer;"></i>
       <p id="msg" class="text-info"></p>
       <p id="err" class="text-danger"></p>
-      <i class="fa fa-remove" data-bind="click: hideFeedbackForm()" style="float: right; cursor: pointer;"></i>
       <!-- ko if: !customerVoted() -->
       <form id="feedback-form" class="form-horizontal" method="post" action="" style="margin-top: 25px;">
         {% csrf_token %}
@@ -16,7 +16,7 @@
             <input type="email" id="inputEmail" class="form-control input-lg"
                    data-bind="css: { 'err-in-input': !customerEmail.isValid() && !firstShow() }, value: customerEmail" placeholder="Email" required>
           </div>
-          <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
+          <div class="col-sm-12" style="text-align: right;"><p class="small-line text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
         </div>
         <div class="form-group">
           <label for="inputFeedback" class="col-sm-4 control-label">Отзыв</label>
@@ -25,9 +25,9 @@
                    data-bind="css: { 'err-in-input': !feedbackText.isValid() && !firstShow() }, value: feedbackText"
                    class="input-lg form-control bfh-phone" placeholder="Отзыв" required></textarea>
           </div>
-          <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !feedbackText.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
+          <div class="col-sm-12" style="text-align: right;"><p class="small-line text-danger" data-bind="visible: !feedbackText.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="position: absolute;bottom: 0;right: 55px;">
           <div class="col-sm-offset-3 col-sm-9">
             <button type="submit" class="btn btn-xl btn-success" data-bind="click: sendFeedback()">
               <i class="fa fa-check-circle"></i> Отправить
@@ -42,9 +42,9 @@
   <!-- ko if: purchaseFormShown() == true -->
     <div class="background"></div>
     <div class="purchase-form">
+      <i class="fa fa-remove" data-bind="click: hidePurchaseForm()" style="float: right; cursor: pointer;"></i>
       <p id="msg" class="text-info"></p>
       <p id="err" class="text-danger"></p>
-      <i class="fa fa-remove" data-bind="click: hidePurchaseForm()" style="float: right; cursor: pointer;"></i>
       <div data-bind="visible: !showResponse()">
         <form id="purchase-form" class="form-horizontal" method="post" action="" style="margin-top: 25px;">
           {% csrf_token %}
@@ -54,7 +54,7 @@
               <input type="email" id="inputEmail" class="form-control input-lg"
                      data-bind="css: { 'err-in-input': !customerEmail.isValid() && !firstShow() }, value: customerEmail" placeholder="Email" required>
             </div>
-            <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
+            <div class="col-sm-12" style="text-align: right;"><p class="small-line text-danger" data-bind="visible: !customerEmail.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
           </div>
           <div class="form-group">
             <label for="inputFeedback" class="col-sm-4 control-label">Меня интересует:</label>
@@ -63,9 +63,9 @@
                      data-bind="css: { 'err-in-input': !positionNeeded.isValid() && !firstShow() }, value: positionNeeded"
                      class="input-lg form-control bfh-phone" placeholder="Описание интересующего вас товара" required></textarea>
             </div>
-            <div class="col-sm-12" style="text-align: right;"><p style="font-size: x-small;" class="text-danger" data-bind="visible: !feedbackText.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
+            <div class="col-sm-12" style="text-align: right;"><p class="small-line text-danger" data-bind="visible: !feedbackText.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="position: absolute;bottom: 0;right: 55px;">
             <div class="col-sm-offset-3 col-sm-9">
               <button type="submit" class="btn btn-xl btn-success" data-bind="click: sendPurchase()">
                 <i class="fa fa-check-circle"></i> Отправить

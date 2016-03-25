@@ -82,9 +82,15 @@ aside {
 .disabled-link {
   pointer-events: none;
 }
+.small-line {
+    font-size: x-small;
+    line-height: 1;
+    margin-bottom: 0;
+}
 .purchase-form,
 .feedback-form,
 .order-form {
+    min-height: 270px;
     width: 40%;
     top: 20%;
     left: 30%;

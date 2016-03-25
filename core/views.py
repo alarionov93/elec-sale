@@ -56,7 +56,7 @@ def products_all(request):
     if request.is_ajax():
         products = models.Product.objects.all()
 
-        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'left_in_stock', 'in_stock', 'thumbs', 'images'])
+        serializer = JSONSerializer(fields=['id', 'name', 'desc', 'cost', 'left_in_stock', 'in_stock', 'thumbs', 'images'])
         json_model = serializer.serialize(queryset=products)
 
         ctx = {
@@ -181,6 +181,7 @@ def remove_all(request):
 
 # TODO: product.count-- in create_order !!
 def create_order(request):
+    ip = request.environ.get('REMOTE_ADDR', None)
     if request.is_ajax() and request.method == 'POST':
         cart = request.session.get('cart', None)
         email = request.POST.get('email', None)
@@ -221,7 +222,7 @@ def create_order(request):
             status = send_mail('Ваш заказ в магазине электроники elec-all.ru', body, settings.ADMIN_EMAIL,
                     [email], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
                     auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
-
+            body += ';\r\n IP is [%s]' % ip
             status2 = send_mail('Новый заказ!', body, settings.ADMIN_EMAIL,
                     [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
                     auth_password=settings.EMAIL_HOST_PASSWORD, html_message=body)
@@ -244,12 +245,16 @@ def create_order(request):
 def create_feedback(request):
     # del request.session['voted']
     voted = request.session.get('voted', None)
+    ip = request.environ.get('REMOTE_ADDR', None)
+    if voted is not None:
+        if (int(timezone.now().timestamp()) - int(voted)) > 86400:
+            del request.session['voted']
     if request.is_ajax() and request.method == 'POST' and not voted:
         email = request.POST.get('email', None)
         feedback = request.POST.get('feedback', None)
         if email and feedback:
             try:
-                body = "%s wrote feedback on \'elec-all.ru\': ``%s``" % (email, feedback)
+                body = "%s wrote feedback on \'elec-all.ru\': ``%s``; IP is [%s]" % (email, ip, feedback)
                 status = send_mail('Feedback from elec-all.ru', body, settings.ADMIN_EMAIL,
                     [settings.ADMIN_EMAIL], fail_silently=settings.MAIL_FAIL_SILENT, auth_user=settings.EMAIL_HOST_USER,
                     auth_password=settings.EMAIL_HOST_PASSWORD)
@@ -263,7 +268,7 @@ def create_feedback(request):
                 'success': 'Вы успешно отправили отзыв, спасибо!'
             })
 
-            request.session['voted'] = '1'
+            request.session['voted'] = int(timezone.now().timestamp())
         else:
             ctx = {
                 'status': 1,
