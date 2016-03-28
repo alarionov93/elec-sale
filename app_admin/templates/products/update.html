@@ -19,14 +19,14 @@
       <a href="{% url 'image_remove' image.id %}" style="position:absolute;">
         <i class="fa fa-3x fa-remove text-danger"></i>
       </a>
-      <img src="{{ image.url }}" class="img-thumbnail" alt="">
+      <img src="{{ image.thumb }}" class="img-thumbnail" alt="">
     </div>
   {% endfor %}
 
-  <div class="col-lg-2 add-image-icon" style="text-align: center;">
-    <a href="{% url 'images_add'%}" style="">
+  <!--<div class="col-lg-2 add-image-icon" style="text-align: center;">
+{#    <a href="{% url 'image_add'%}" style="">#}
       <i class="fa fa-3x fa-plus text-success"></i>
     </a>
-  </div>
+  </div>-->
 
 {% endblock %}

@@ -1,23 +1,21 @@
 import os
+import uuid
 
+from PIL import Image
 from django.conf import settings
+from django.http import Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView, DeleteView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import Http404
-from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.base import ContextMixin, View
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView, DeleteView
-from core import models
+from core import models, constants
 from app_admin.forms import ProductForm
-from PIL import Image
-import uuid
-
-LOGIN_REDIRECT_URL = '/admin/login/'
 
 
-@method_decorator(login_required(login_url=LOGIN_REDIRECT_URL), name='dispatch')
+@method_decorator(login_required(login_url=constants.LOGIN_REDIRECT_URL), name='dispatch')
 class AdminAuth(View):
     pass
 
@@ -103,7 +101,7 @@ class ProductCreate(CreateView, AdminContext, WithHeader):
     template_name = 'products/create.html'
 
     model = models.Product
-    fields = ['name', 'desc', 'cost', 'left_in_stock', ]
+    fields = ['is_enabled', 'name', 'desc', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
@@ -126,7 +124,7 @@ class ProductCreate(CreateView, AdminContext, WithHeader):
         return super(ProductCreate, self).form_valid(form)
 
     def get_success_url(self):
-        return '../%s/' % self.object.id
+        return reverse('products_list')
 
 
 class ProductUpdate(UpdateView, AdminContext, WithHeader):
@@ -134,26 +132,20 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
     template_name = 'products/update.html'
 
     model = models.Product
-    fields = ['name', 'desc', 'cost', 'left_in_stock', ]
+    fields = ['is_enabled', 'name', 'desc', 'cost', 'left_in_stock', ]
     context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
         ctx = super(ProductUpdate, self).get_context_data()
         ctx['form'] = self.get_form()
 
-        images_qs = self.object.thumbs
+        images_qs = self.object.images
         ctx['images'] = images_qs
 
         return ctx
 
     def get_form(self, form_class=ProductForm):
         form = super(ProductUpdate, self).get_form()
-        # images = self.object.get_images()
-        # img_urls = []
-        # for i in images:
-        #     img_urls.append(i.thumbnail.url)
-        # form.fields['images'] = forms.ImageField()
-        # form.fields['images'].initial = images
 
         return form
 
@@ -168,70 +160,21 @@ class ProductUpdate(UpdateView, AdminContext, WithHeader):
         )
 
     def get_success_url(self):
-        return '../%s/' % self.object.id
-
-# TODO: implement this class properly!!
-class ProductView(DetailView, AdminContext, WithHeader):
-    page_header = 'Изменить продукт'
-    template_name = 'products/update.html'
-
-    model = models.Product
-    fields = ['name', 'desc', 'cost', 'left_in_stock', ]
-    context_object_name = 'product'
-
-    def get_context_data(self, **kwargs):
-        ctx = super(ProductView, self).get_context_data()
-        ctx['images'] = self.object.get_images()
-
-        return ctx
-
-    def get_parent_link(self):
         return reverse('products_list')
 
-    def get_object(self, queryset=None):
-        return get_object_or_404(
-                self.model,
-                id=self.kwargs['pk']
-        )
 
-    def get_success_url(self):
-        return '../%s/' % self.object.id
-
-
-class ProductRemove(DeleteView, AdminContext, WithHeader):
-    page_header = 'Удалить изображение'
-    template_name = 'images/remove.html'
-    img_link = ''
-    thumb_link = ''
-
-    model = models.ProductImage
-
-    def get_queryset(self):
-        qs = super(ProductRemove, self).get_queryset()
-        try:
-            image = qs.get(pk=self.kwargs['pk'])
-            self.img_link = image.image
-            self.thumb_link = image.thumb
-        except self.model.DoesNoExists:
-            raise Http404('pk %s does not exists' % self.kwargs['pk'])
-
-        return qs
+class ImageList(ListView, AdminContext, WithHeader):
+    page_header = 'Изображения'
+    template_name = 'images/list.html'
+    queryset = models.ProductImage.objects.all()
+    context_object_name = 'images'
+    ordering = 'id'
 
     def get_context_data(self, **kwargs):
-        ctx = super(ProductRemove, self).get_context_data()
-        ctx['thumb'] = str(self.thumb_link.url)
+        ctx = super(ImageList, self).get_context_data()
+        ctx['images'] = self.get_queryset()
 
         return ctx
-
-    def post(self, request, *args, **kwargs):
-        qs = super(ProductRemove, self).post(request, *args, **kwargs)
-        os.remove(str(self.img_link.file))
-        os.remove(str(self.thumb_link.file))
-
-        return qs
-
-    def get_success_url(self):
-        return reverse('products_list')
 
 
 class ImageCreate(CreateView, AdminContext, WithHeader):
@@ -276,7 +219,7 @@ class ImageCreate(CreateView, AdminContext, WithHeader):
         image.product = product
         image.save()
 
-        size = (600, 600)
+        size = (constants.THUMB_SIZE_HEIGHT, constants.THUMB_SIZE_WIDTH)
 
         full_link = image.image.file.name
         infile = Image.open(full_link)
@@ -316,7 +259,7 @@ class ImageRemove(DeleteView, AdminContext, WithHeader):
             image = qs.get(pk=self.kwargs['pk'])
             self.img_link = image.image
             self.thumb_link = image.thumb
-        except self.model.DoesNoExists:
+        except self.model.DoesNotExists:
             raise Http404('pk %s does not exists' % self.kwargs['pk'])
 
         return qs
@@ -335,4 +278,52 @@ class ImageRemove(DeleteView, AdminContext, WithHeader):
         return qs
 
     def get_success_url(self):
-        return reverse('products_list')
+        return reverse('images')
+
+
+class OrderList(ListView, AdminContext, WithHeader):
+    page_header = 'Заказы'
+    template_name = 'orders/list.html'
+    queryset = models.Order.objects.all()
+    context_object_name = 'orders'
+    ordering = 'id'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(OrderList, self).get_context_data()
+        ctx['orders'] = self.get_queryset()
+
+        return ctx
+
+class OrderUpdate(UpdateView, AdminContext, WithHeader):
+    page_header = 'Изменить заказ'
+    template_name = 'orders/update.html'
+
+    model = models.Order
+    fields = ['number', 'user_phone', 'user_email', 'date', 'total' ]
+    context_object_name = 'orders'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(OrderUpdate, self).get_context_data()
+        ctx['form'] = self.get_form()
+
+        # images_qs = self.object.images
+        # ctx['images'] = images_qs
+
+        return ctx
+
+    def get_form(self, form_class=ProductForm):
+        form = super(OrderUpdate, self).get_form()
+
+        return form
+
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+                self.model,
+                id=self.kwargs['pk']
+        )
+
+    def get_success_url(self):
+        return reverse('orders')
+
+

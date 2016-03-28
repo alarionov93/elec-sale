@@ -27,7 +27,7 @@
               <td><b data-bind="text: product.price()"></b> <i class="fa fa-ruble"></i></td>
               <td><i class="fa fa-remove text-danger" data-bind="click: $root.deleteFromCart(product.id)"></i></td>
               <!-- ko if: product.count() > product.leftInStock -->
-                <td class="text-danger"><b>!</b>  На складе меньше товара, чем нужно</td>
+                <td class="text-danger"><i class="fa fa-exclamation-triangle"></i>  На складе меньше товара, чем нужно</td>
               <!-- /ko -->
               <!-- ko ifnot: product.count() > product.leftInStock -->
                 <td></td>
@@ -82,15 +82,6 @@
               </div>
               <div class="col-sm-12" style="text-align: right;"><p  style="font-size: x-small;" class="small-line text-danger" data-bind="visible: !customerPhone.isValid() && !firstShow()">Вероятно, поле заполнено неверно.</p></div>
             </div>
-            <!--<div class="form-group">
-              <div class="col-sm-offset-2 col-sm-10">
-                <div class="checkbox">
-                  <label>
-                    <input type="checkbox"> Remember me
-                  </label>
-                </div>
-              </div>
-            </div>-->
             <div class="form-group" style="position: absolute;bottom: 0;right: 55px;">
               <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-xl btn-success" data-bind="click: $root.makeOrder()">

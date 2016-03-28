@@ -65,6 +65,18 @@
             <i class="fa fa-shopping-basket"></i> <span>Продукты</span>
           </a>
         </li>
+
+        <li {% if current_page == 'images' %} class="active" {% endif %}>
+          <a href="{% url 'images' %}">
+            <i class="fa fa-image"></i> <span>Изображения</span>
+          </a>
+        </li>
+
+        <li {% if current_page == 'orders' %} class="active" {% endif %}>
+          <a href="{% url 'orders' %}">
+            <i class="fa fa-shopping-bag"></i> <span>Заказы</span>
+          </a>
+        </li>
       </ul>
 
       <!-- /.sidebar-menu -->

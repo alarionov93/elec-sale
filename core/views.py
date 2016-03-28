@@ -1,21 +1,15 @@
-import random
 import uuid
 import json
-from collections import Counter
 
-from core.mails import mail_body
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.http import Http404, JsonResponse, HttpResponse
-from django.shortcuts import render, render_to_response
-from core import models
-from django.template import Template, Context
 from django.utils import timezone
-from django.utils.timezone import localtime
-from elec_site import settings
+from django.shortcuts import render
+from core import models, constants
+from core.mails import mail_body
 from core.json_serializer import JSONSerializer
-
-# TODO: rewrite this shit using extending and django CBV !!
+from elec_site import settings
 
 def index(request):
     limit_val = 3
@@ -37,7 +31,7 @@ def products(request):
         products = models.Product.objects.filter(left_in_stock__gte=1).order_by('?')[:limit_val]
         products_all_count = models.Product.objects.filter(left_in_stock__gte=1).count()
 
-        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'left_in_stock', 'in_stock', 'thumbs', 'images'])
+        serializer = JSONSerializer(fields=['id', 'name', 'cost', 'left_in_stock', 'in_stock', 'images'])
         json_model = serializer.serialize(queryset=products)
 
         ctx = {
@@ -56,7 +50,7 @@ def products_all(request):
     if request.is_ajax():
         products = models.Product.objects.all()
 
-        serializer = JSONSerializer(fields=['id', 'name', 'desc', 'cost', 'left_in_stock', 'in_stock', 'thumbs', 'images'])
+        serializer = JSONSerializer(fields=['id', 'name', 'desc', 'cost', 'left_in_stock', 'in_stock', 'images'])
         json_model = serializer.serialize(queryset=products)
 
         ctx = {
@@ -68,23 +62,9 @@ def products_all(request):
     else:
         raise Http404('Not found')
 
-
-def product(request, product_id):
-    product_id = int(product_id)
-    product = models.Product.objects.get(pk=product_id)
-    ctx = {
-        'product': product,
-        'images_dir': settings.MEDIA_URL,
-        'thumbs': product.thumb_urls,
-        'images': product.images,
-    }
-
-    return render(request, 'product-view.html', ctx)
-
 # Cart
 
 def add_to_cart(request, product_id):
-    # del request.session['cart']
     prod_data = []
     cart = request.session.get('cart', None)
     product_id = int(product_id)
@@ -104,14 +84,6 @@ def add_to_cart(request, product_id):
 
     s_cart = json.dumps(prod_data)
     request.session['cart'] = s_cart
-
-    # products = []
-    # for p in prod_data:
-    #         product = models.Product.objects.get(pk=p['id'])
-    #         setattr(product, 'count', p['count'])
-    #         products.append(product)
-    # serializer = JSONSerializer(fields=['id', 'name', 'cost', 'in_stock', 'thumbs', 'images', 'count'])
-    # cart = serializer.serialize(queryset=products)
     status = json.dumps({'status': status, 'cart': prod_data})
 
     return HttpResponse(status, content_type='application/json')
@@ -128,9 +100,7 @@ def update_cart(request):
 
     return HttpResponse(status, content_type='application/json')
 
-
 def cart_view(request):
-
     return render(request, 'cart.html')
 
 # TODO: define view to decrease/increase product count
@@ -169,7 +139,6 @@ def delete_from_cart(request, product_id):
 
 def remove_all(request):
     cart = request.session.get('cart', None)
-    # TODO: change with try-except here!!
     status = 0
     if cart is not None:
         del request.session['cart']
@@ -243,11 +212,10 @@ def create_order(request):
 
 
 def create_feedback(request):
-    # del request.session['voted']
     voted = request.session.get('voted', None)
     ip = request.environ.get('REMOTE_ADDR', None)
     if voted is not None:
-        if (int(timezone.now().timestamp()) - int(voted)) > 86400:
+        if (int(timezone.now().timestamp()) - int(voted)) > constants.TIME_TO_VOTE:
             del request.session['voted']
     if request.is_ajax() and request.method == 'POST' and not voted:
         email = request.POST.get('email', None)

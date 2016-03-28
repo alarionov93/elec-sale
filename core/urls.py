@@ -6,7 +6,6 @@ urlpatterns = [
     url(r'^$', views.index, name='site_index'),
     url(r'^products/$', views.products, name='products'),
     url(r'^products/all/$', views.products_all, name='products_all'),
-    url(r'^products/(?P<product_id>[0-9]+)/$', views.product, name='product'),
 
     # shopping cart
     url(r'^cart/$', views.cart_view, name='cart'),
@@ -16,7 +15,6 @@ urlpatterns = [
     url(r'^cart/delete/(?P<product_id>[0-9]+)/$', views.delete_from_cart, name='delete_from_cart'),
 
     # orders
-    # url(r'^orders/$', views.products_all, name='orders'),
     url(r'^orders/create/$', views.create_order, name='create_order'),
     url(r'^feedback/$', views.create_feedback, name='create_feedback'),
     url(r'^purchase/$', views.create_purchase, name='create_purchase'),

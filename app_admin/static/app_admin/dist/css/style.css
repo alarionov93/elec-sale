@@ -1,4 +1,5 @@
 .img-container {
+    max-width: 100px !important;
     padding: 0 !important;
     border: 1px solid #fff;
 }

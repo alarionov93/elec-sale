@@ -78,7 +78,6 @@ function ViewModel() {
                                 products[i].fields.cost,
                                 products[i].fields.in_stock, 
                                 products[i].fields.left_in_stock,
-                                products[i].fields.thumbs,
                                 products[i].fields.images);
                 self.products.push(product);
             }
@@ -106,30 +105,8 @@ function ViewModel() {
         return true;
     }
 
-    // self.duplicates = ko.observableArray();
-    // self.findDuplicates = function(array) {
-    //     var rem = [];
-    //     for(var i = 0; i < array.length-1; i++) {
-    //         for(var j = i; j < array.length; j++) {
-    //             if(i != j) {
-    //                 if(self.equals(array[i], array[j])) {
-    //                     array[i].count(array[i].count() + 1);
-    //                     self.cart.remove(array[j]);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return rem;
-    // }
-
     self.shuffle = function(arr) {
         var newLength = 2;
-        // for (var i = 0; i < newLength; i++) {
-        //     var j = Math.floor(Math.random() * (i + 1));
-        //     var temp = array[i];
-        //     array[i] = array[j];
-        //     array[j] = temp;
-        // }
         for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
         self.shuffledProducts(arr.slice(0,3));
     }
@@ -178,16 +155,6 @@ function ViewModel() {
                         p.isInCart(true);
                         p.count(resp.cart[i].count); //++ its count
                         self.cart.push(p);
-                        // if(resp.cart[i].count > 1) {
-                        //     p = self.cart.find(resp.cart[i].id); //find element in cart
-                        //     p.isInCart(true);
-                        //     p.count(resp.cart[i].count); //++ its count
-                        // } else {
-                        //     p = self.products.find(resp.cart[i].id); //find element in products
-                        //     p.isInCart(true);
-                        //     p.count(resp.cart[i].count);
-                        //     self.cart.push(p);
-                        // }
                     }
                 } else {
                     console.log("Error:" + resp.status);                    
@@ -210,7 +177,6 @@ function ViewModel() {
                     p.isInCart(true);
                     p.count(resp.cart[i].count); //++ its count
                     self.cart.push(p);
-                    // p.leftInStock--;
                 }
             } else {
                 console.log("Error:" + resp.status);                    

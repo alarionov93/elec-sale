@@ -9,6 +9,7 @@
       <th>Цена, <i class="fa fa-rouble"></i></th>
       <th>Количество</th>
       <th>Наличие</th>
+      <th>Вкл/выкл</th>
       <th>Изменить</th>
     </tr>
   </thead>
@@ -23,6 +24,11 @@
           <td><i class="fa fa-check text-success"></i></td>
         {% else%}
           <td><i class="fa fa-remove text-danger"></i></td>
+        {% endif %}
+        {% if product.is_enabled %}
+          <td><i class="fa fa-toggle-on text-success"></i></td>
+        {% else%}
+          <td><i class="fa fa-toggle-off text-danger"></i></td>
         {% endif %}
         <td><a href="{% url 'product_update' product.id %}"><i class="fa fa-pencil"></i></a></td>
       </tr>

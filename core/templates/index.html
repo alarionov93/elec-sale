@@ -186,10 +186,10 @@
           </div>
           <div class="row">
             <div class="col-lg-4 col-sm-4">
-              <!--ko foreach: { data: product.thumbs, as: 'thumb' } -->
+              <!--ko foreach: { data: product.images, as: 'image' } -->
                 <!-- ko if: $index() == 0 -->
                   <!-- TODO: make simple viewer for large images -->
-                  <a data-bind="attr: { href: thumb.large }"><img data-bind="attr: { src: thumb.url }" class="img-thumbnail" alt=""></a>
+                  <a target="_blank" data-bind="attr: { href: image.large }"><img data-bind="attr: { src: image.thumb }" class="img-thumbnail" alt=""></a>
                 <!-- /ko -->
               <!-- /ko -->
             </div>

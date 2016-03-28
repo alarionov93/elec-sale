@@ -5,9 +5,9 @@
 <div data-bind="foreach: { data: productsToShow, as : 'product' }">
   <div class="col-lg-4 col-sm-6 no-padding">
     <a data-bind="click: $root.getProduct(product.id)" class="portfolio-box">
-      <!--ko foreach: { data: product.thumbs, as: 'thumb' } -->
+      <!--ko foreach: { data: product.images, as: 'image' } -->
         <!-- ko if: $index() == 0 -->
-          <img data-bind="attr: { src: thumb.url }" class="img-responsive" alt="">
+          <img data-bind="attr: { src: image.thumb }" class="img-responsive" alt="">
         <!-- /ko -->
       <!-- /ko -->
       <div class="portfolio-box-caption">

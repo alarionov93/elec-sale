@@ -1,13 +1,7 @@
 from django.db import models
 from django.utils import timezone
-from core.json_serializer import JSONSerializer
-from django.utils.datetime_safe import strftime
-from django.utils.timezone import localtime
-from elec_site import settings
-
-THUMB_SIZE = 200
-IN_STOCK = 1
-OUT_OF_STOCK = 0
+from datetime import datetime
+from core import constants
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
@@ -18,6 +12,8 @@ class Product(models.Model):
     cost = models.PositiveIntegerField(null=False, blank=False, verbose_name='Цена')
     left_in_stock = models.IntegerField(null=False, blank=False, unique=False,
                                         default=1, verbose_name='Осталось на складе')
+    is_enabled = models.PositiveIntegerField(default=constants.PRODUCT_ENABLED, null=False,
+                                             blank=False, verbose_name='Отображение продукта')
 
     @property
     def in_stock(self):
@@ -27,31 +23,14 @@ class Product(models.Model):
         return self.name
 
     @property
-    def thumb_urls(self):
-        qs = ProductImage.objects.filter(product=self.id)
-        urls = []
-        for i in qs:
-            urls.append(i.thumb.url)
-
-        return urls
-
-    @property
-    def thumbs(self):
-        qs = ProductImage.objects.filter(product=self.id)
-        thumbs = []
-        for i in qs:
-            thumbs.append({'id': i.id,'url': i.thumb.url, 'large': i.image.url})
-
-        return thumbs
-
-    @property
     def images(self):
         qs = ProductImage.objects.filter(product=self.id)
-        urls = []
+        images = []
         for i in qs:
-            urls.append(i.image.url)
+            images.append({'id': i.id,'thumb': i.thumb.url, 'large': i.image.url})
 
-        return urls
+        return images
+
 
     def to_json(self):
         if not self.id:
@@ -62,6 +41,7 @@ class Product(models.Model):
             'name': self.name,
             'desc': self.desc,
             'cost': self.cost,
+            'is_enabled': self.is_enabled,
         }
 
     class Meta:
@@ -91,10 +71,9 @@ class ProductImage(models.Model):
 
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
-    number = models.CharField(null=False, blank=False, max_length=100, default='', unique=False, verbose_name='Номер заказа')
-    # user = models.ForeignKey(MyUser)
-    # status = models.IntegerField(null=True, blank=True, default=0)
     total = models.PositiveIntegerField(null=False, blank=False, unique=False, default=0)
+    number = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
+                              verbose_name='Номер заказа')
     user_phone = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
                                   verbose_name='Телефон')
     user_email = models.CharField(null=False, blank=False, max_length=100, default='', unique=False,
@@ -118,8 +97,8 @@ class Order(models.Model):
         j['number'] = self.number
         j['total'] = self.total
         j['email'] = self.user_email
-        # TODO: make this shit ti work!!
-        j['date'] = localtime(timezone.now()).strftime('%d.%m.%Y %H:%m')
+        # TODO: make this shit to work!! done.
+        j['date'] = datetime.now().strftime('%d.%m.%Y %H:%m')
 
         return j
 
